@@ -13,12 +13,14 @@ workflows:
       - name: Fix binary permissions
         script: |
           chmod +x node_modules/.bin/*
-      - name: Sync Capacitor iOS
-        script: |
-          npx cap sync ios
       - name: Build web assets
         script: |
           npm run build --if-present
+      - name: Regenerate iOS platform cleanly
+        script: |
+          rm -rf ios
+          npx cap add ios
+          npx cap sync ios
       - name: Compile iOS project
         script: |
           cd ios/App
