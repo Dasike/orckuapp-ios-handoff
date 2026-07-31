@@ -1,0 +1,22 @@
+workflows:
+  ios-workflow:
+    name: iOS App Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      node: 18
+      xcode: latest
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install
+      - name: Sync Capacitor iOS
+        script: |
+          npx cap sync ios
+      - name: Build web assets
+        script: |
+          npm run build --if-present
+      - name: Compile iOS project
+        script: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination "generic/platform=iOS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
