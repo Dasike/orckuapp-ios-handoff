@@ -1,0 +1,5662 @@
+:root {
+    --bg-darker: #06050b;
+    --bg-dark: #0c0b16;
+    --bg-surface: rgba(22, 19, 39, 0.7);
+    --bg-card: #151326;
+    --primary: #9d4edd; /* Main Violet Accent */
+    --accent: #7b2cbf;  /* Secondary Deep Purple */
+    --gem-color: #c77dff; /* Magical Glowing Purple Gem */
+    --text-main: #f3e8ff;
+    --text-muted: #8c82ab;
+    --border-color: rgba(157, 78, 221, 0.18);
+    --font-heading: 'Bricolage Grotesque', sans-serif;
+    --font-body: 'Figtree', sans-serif;
+    /* Rarezas del gacha (escala Tolkien, fija) - variables reutilizables para no repetir
+       colores sueltos. Hobbit=bronce, Rohirrim=plata/acero, Maiar=oro, Anillo Unico=magma
+       rojo (a proposito distinto de la progresion bronce/plata/oro, para que se sienta unico). */
+    --rarity-common: #a87a4d;
+    --rarity-rare: #7c93a8;
+    --rarity-epic: #d4af37;
+    --rarity-legendary: #ff3b30;
+    /* Alto real de la barra de estado/gestos de Android, medido nativo en MainActivity.java
+       (mas confiable que env(safe-area-inset-*), que algunos WebView/fabricantes no soportan
+       bien). 0px por defecto para el mockup de escritorio / navegador normal. */
+    --safe-top: 0px;
+    --safe-bottom: 0px;
+    /* Sistema de movimiento compartido (fase 1 del rediseño, 2026-07-02): timings y
+       animaciones reutilizables para que toda la app anime igual, en vez de que cada
+       pantalla invente su propia duracion/easing suelta. */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+    /* Colores semanticos: consolidan los 4 rojos y 2 verdes sueltos que hay hoy en el
+       archivo (#e63946, #f87171, #ff3b30, #ff6b61 / #4ade80, #3a0ca3). No se reemplazan
+       los usos existentes todavia -se migran de a uno en fases futuras, pantalla por
+       pantalla, para no arriesgar romper algo por un find-replace grande de una vez. */
+    --danger: #ff6b61;
+    --success: #4ade80;
+    /* "Codice Arcano" (fase 2 del rediseño, 2026-07-02): la app ya tenia una identidad de
+       fantasia magica (Tolkien, Runas, gema violeta) pero se ejecutaba plana -sin brillo, sin
+       profundidad, sin atmosfera. Estas variables son el vocabulario visual compartido para
+       que "se sienta" magica: brillo violeta en bordes/tarjetas interactivas, dorado
+       reservado SOLO para momentos especiales (legendario, premium, equipado) para que
+       mantenga su peso simbolico en vez de diluirse en todos lados.
+       - --glow-primary: la sombra estandar para "esto es interactivo/vivo" (hover de tarjetas, focus).
+       - --glow-legendary: reservado para lo excepcional (Anillo Unico, marco exclusivo Patreon). */
+    --glow-primary: 0 0 0 1px rgba(157, 78, 221, 0.35), 0 8px 24px rgba(124, 44, 191, 0.25);
+    --glow-legendary: 0 0 16px rgba(212, 175, 55, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Sin esto, Android muestra un recuadro azul/gris nativo al tocar CUALQUIER elemento
+       clickeable (WebView usa el highlight por defecto de Chrome) - la app ya tiene su propio
+       feedback táctil en todos lados (:active con scale, glow, etc.), así que el highlight
+       nativo solo se ve como un flash feo y ajeno al resto del diseño. */
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    touch-action: pan-y;
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+button, input, textarea, select {
+    font-family: inherit;
+}
+
+body {
+    background-color: #030206;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-optical-sizing: auto;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    touch-action: pan-y;
+    overscroll-behavior: none;
+}
+
+/* Desktop layout: phone frame + control panel */
+.mockup-container {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    max-width: 1100px;
+    padding: 30px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* Control Panel Style */
+.control-panel {
+    flex: 1;
+    max-width: 480px;
+    background: rgba(12, 11, 22, 0.75);
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    padding: 36px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 0 10px rgba(157, 78, 221, 0.1);
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.brand-logo i {
+    font-size: 32px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 10px rgba(157, 78, 221, 0.5));
+}
+
+.brand-logo h2 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: -0.5px;
+}
+
+.brand-logo h2 span {
+    color: var(--gem-color);
+}
+
+.panel-desc {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+.control-group h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    margin-bottom: 16px;
+}
+
+.btn-control {
+    width: 100%;
+    padding: 15px 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(157, 78, 221, 0.3);
+    background: linear-gradient(135deg, rgba(123, 44, 191, 0.25), rgba(157, 78, 221, 0.1));
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 24px;
+}
+
+.btn-control:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(157, 78, 221, 0.35);
+    border-color: var(--primary);
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid rgba(157, 78, 221, 0.1);
+}
+
+.info-card h4 {
+    color: var(--gem-color);
+    font-size: 15px;
+    margin-bottom: 14px;
+}
+
+.info-card ul {
+    list-style: none;
+}
+
+.info-card li {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.6;
+    position: relative;
+    padding-left: 20px;
+}
+
+.info-card li::before {
+    content: "✦";
+    color: var(--primary);
+    position: absolute;
+    left: 4px;
+    font-size: 11px;
+}
+
+/* Smartphone Frame Container (EXPANDED TO GIVE BREATHING ROOM) */
+.smartphone-frame {
+    width: 395px;
+    height: 830px;
+    background: #000;
+    border: 12px solid #1a1926;
+    border-radius: 46px;
+    position: relative;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.85), 0 0 0 3px rgba(157, 78, 221, 0.15);
+    overflow: hidden;
+    overscroll-behavior: none;
+    flex-shrink: 0;
+}
+
+/* Phone Notch */
+.notch {
+    width: 145px;
+    height: 28px;
+    background: #1a1926;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    z-index: 999;
+}
+
+/* Phone Screen inside frame */
+.phone-screen {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-darker);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Android Home Indicator Pill */
+.android-home-pill {
+    width: 120px;
+    height: 4px;
+    background: rgba(157, 78, 221, 0.4);
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    z-index: 999;
+}
+
+/* Status Bar styling */
+.android-status-bar {
+    height: 36px;
+    padding: 0 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: rgba(243, 232, 255, 0.5);
+    background-color: var(--bg-darker);
+    font-weight: 600;
+    z-index: 10;
+}
+
+.android-status-bar .icons {
+    display: flex;
+    gap: 8px;
+}
+
+/* App Header */
+.app-header {
+    position: relative;
+    height: calc(60px + var(--safe-top));
+    background-color: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--safe-top) 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.app-logo {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 23px;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+}
+
+.app-logo i {
+    color: var(--primary);
+    filter: drop-shadow(0 0 5px rgba(157, 78, 221, 0.6));
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.wallet-badge {
+    background: rgba(157, 78, 221, 0.12);
+    border: 1px solid rgba(157, 78, 221, 0.35);
+    padding: 7px 14px;
+    border-radius: 30px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--gem-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.wallet-badge:active {
+    transform: scale(0.92);
+}
+
+.wallet-badge i {
+    color: var(--primary);
+    filter: drop-shadow(0 0 4px rgba(157, 78, 221, 0.6));
+}
+
+.profile-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1.5px solid var(--border-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-avatar.has-overlay-frame,
+.profile-big-avatar.has-overlay-frame {
+    border-color: transparent;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.profile-avatar:active {
+    transform: scale(0.9);
+}
+
+/* Popover rapido del avatar del header */
+.header-profile-popover {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 16px;
+    width: 230px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+    z-index: 50;
+}
+
+.header-profile-popover.active {
+    display: block;
+}
+
+.header-popover-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.header-popover-avatar-row img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 1.5px solid var(--border-color);
+}
+
+.header-popover-avatar-row h4 {
+    font-size: 14px;
+    margin: 0 0 4px 0;
+}
+
+.user-tier-mini {
+    font-size: 11px;
+    background: rgba(157, 78, 221, 0.1);
+    color: var(--gem-color);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.header-popover-vip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    padding: 6px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.header-popover-stat {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+
+.header-popover-btn {
+    width: 100%;
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.header-popover-btn:active {
+    transform: scale(0.96);
+}
+
+/* INTERACTIVE AVATAR FRAMES
+   Borde Estirable y Fuego Amatista eliminados (2026-06-29): con la foto vertical de muestra
+   el recorte circular se veia mal sin importar object-position, asi que se sacaron de la
+   Tienda en vez de seguir parchando. Si vuelven, usar las mismas clases de abajo como base. */
+
+.frame-earendil-border {
+    border: 2.5px solid rgba(215, 215, 255, 0.9) !important;
+    box-shadow: 0 0 10px rgba(200, 200, 255, 0.75), inset 0 0 4px rgba(180, 180, 255, 0.2);
+}
+
+.frame-portador-border {
+    border: 2.5px solid #ffd700 !important;
+    animation: pulsePortador 2.5s infinite ease-in-out;
+}
+@keyframes pulsePortador {
+    0%, 100% { box-shadow: 0 0 6px rgba(255, 215, 0, 0.45); }
+    50% { box-shadow: 0 0 16px rgba(255, 215, 0, 0.9), inset 0 0 5px rgba(255, 200, 0, 0.25); }
+}
+
+.frame-muertos-border {
+    border: 2px solid rgba(90, 220, 140, 0.6) !important;
+    animation: pulseMuertos 3.5s infinite ease-in-out;
+}
+@keyframes pulseMuertos {
+    0%, 100% { box-shadow: 0 0 8px rgba(70, 200, 110, 0.3), inset 0 0 4px rgba(60, 180, 100, 0.1); }
+    50% { box-shadow: 0 0 18px rgba(70, 200, 110, 0.65), inset 0 0 8px rgba(60, 180, 100, 0.3); }
+}
+
+.frame-palantir-border {
+    border: 2.5px solid #3d5afe !important;
+    animation: pulsePalantir 3s infinite ease-in-out;
+}
+@keyframes pulsePalantir {
+    0%, 100% { box-shadow: 0 0 7px rgba(100, 140, 255, 0.5); }
+    50% { box-shadow: 0 0 18px rgba(100, 140, 255, 0.9), inset 0 0 7px rgba(80, 120, 255, 0.3); }
+}
+
+.frame-sauron-border {
+    border: 2.5px solid #ff6b35 !important;
+    animation: pulseSauron 2s infinite ease-in-out;
+}
+@keyframes pulseSauron {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 100, 30, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(255, 100, 30, 0.9), inset 0 0 7px rgba(210, 55, 0, 0.35); }
+}
+
+/* AURAS DE NOMBRE DE USUARIO: efecto de color/glow sobre el texto del username. Se ve en el
+   perfil/popover propio (self-view) Y en los comentarios de quien la tenga equipada -.comment-
+   username ya trae su propio "color", asi que estos usan !important para ganarle sin importar
+   en que contexto se apliquen-. */
+.name-aura-rohan {
+    background: linear-gradient(90deg, #c9a14a, #7fae5c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    font-weight: 800;
+}
+
+.name-aura-ithilien {
+    color: #b9f5d0 !important;
+    text-shadow: 0 0 6px rgba(140, 230, 180, 0.8);
+    font-weight: 800;
+}
+
+.name-aura-erebor {
+    color: #ffd966 !important;
+    text-shadow: 0 0 8px rgba(255, 200, 60, 0.7);
+    animation: pulseEreborGlow 2.5s infinite ease-in-out;
+    font-weight: 800;
+}
+@keyframes pulseEreborGlow {
+    0%, 100% { text-shadow: 0 0 6px rgba(255, 200, 60, 0.5); }
+    50% { text-shadow: 0 0 14px rgba(255, 200, 60, 0.95), 0 0 22px rgba(255, 180, 40, 0.55); }
+}
+
+.name-aura-nazgul {
+    color: #c9a8ff !important;
+    text-shadow: 0 0 8px rgba(120, 60, 200, 0.85), 0 0 14px rgba(60, 20, 100, 0.6);
+    font-weight: 800;
+}
+
+.name-aura-valinor {
+    background: linear-gradient(90deg, #fff7d6, #ffd700, #fff7d6);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    animation: auraValinorShine 3s linear infinite;
+    font-weight: 800;
+}
+@keyframes auraValinorShine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* MARCOS ESTILO DISCORD: a diferencia de los 2 de arriba (un borde CSS directo sobre la foto),
+   estos son una imagen aparte (PNG/WebP transparente) que se monta encima del circulo y
+   sobresale de el. El circulo de la foto (.profile-avatar / .profile-big-avatar) sigue
+   recortando en circulo exactamente igual que antes -cero cambios ahi-; lo nuevo es este
+   "wrap" sin recorte que envuelve tanto el circulo como el overlay, para que el overlay SI
+   pueda salirse del circulo sin que nada lo corte. */
+.avatar-frame-wrap {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+}
+
+.avatar-frame-wrap-big {
+    width: 86px;
+    height: 86px;
+    margin: 0 auto 12px auto;
+}
+
+.avatar-frame-wrap-preview {
+    width: 60px;
+    height: 60px;
+    cursor: default;
+}
+
+.avatar-frame-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 130%;
+    height: 130%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+    pointer-events: none; /* el tap siempre debe llegar al wrap, nunca quedarse en el overlay */
+}
+
+/* Efectos por marco (sugeridos por Gemini al generar el arte): solo CSS sobre la imagen
+   estatica -drop-shadow/filter-, sin archivos animados pesados. */
+.frame-overlay-barad {
+    filter: drop-shadow(0 0 12px rgba(200, 0, 0, 0.5));
+}
+
+
+.frame-overlay-lorien {
+    filter: drop-shadow(0 0 8px rgba(218, 165, 32, 0.5));
+}
+
+.frame-overlay-concilio {
+    /* Sin brillo a proposito: es una reliquia vieja, no un trofeo nuevo. */
+    filter: sepia(0.25) contrast(1.1);
+}
+
+/* Llama Blanca de Anor (exclusivo Patreon Tier 4): brillo mas fuerte que el resto a proposito
+   -el arte es fuego blanco/plata de trazo fino, que a 34px (avatar del header) se difumina y
+   pierde la forma de llama. Un halo blanco marcado compensa: aunque el detalle se pierda, sigue
+   leyendose como un aura radiante intencional en vez de una imagen borrosa. */
+.frame-overlay-anor {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.5));
+    animation: pulseAnorGlow 2.4s ease-in-out infinite;
+}
+
+@keyframes pulseAnorGlow {
+    0%, 100% { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.5)); }
+    50%      { filter: drop-shadow(0 0 9px rgba(255, 255, 255, 1)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.7)); }
+}
+
+/* Bottom Navigation Bar */
+.app-navigation {
+    height: calc(70px + var(--safe-bottom));
+    background-color: var(--bg-dark);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: calc(8px + var(--safe-bottom)); /* Safe space for android home pill/gestos */
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    flex: 1;
+}
+
+.nav-item i {
+    font-size: 21px;
+    transition: transform 0.2s ease;
+}
+
+.nav-item.active {
+    color: var(--primary);
+}
+
+.nav-item.active i {
+    transform: translateY(-2px);
+    text-shadow: 0 0 10px rgba(157, 78, 221, 0.6);
+}
+
+/* App Main Content Area */
+.app-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    touch-action: pan-y;
+    overscroll-behavior: none;
+    background-color: var(--bg-darker);
+    /* Dos capas: vineta radial sutil (magia emanando desde arriba, fija al viewport del telefono
+       via "no-repeat") + grano tileable (SVG de ruido inline, se repite solo con el contenido
+       real sin importar cuanto mida -evita el problema de un overlay position:fixed/absolute
+       que se saldria de los limites del telefono en la maqueta de escritorio). Da profundidad
+       atmosferica y textura de "codice antiguo" sin pesar nada (2 gradientes/imagenes CSS).
+       Sin background-attachment (usa el "scroll" por defecto, fijo a la caja del elemento):
+       "local" forzaba un repintado del fondo en cada frame de scroll, carisimo en WebView
+       de Android con scroll rapido (causaba checkerboarding). */
+    background-image:
+        radial-gradient(ellipse 900px 500px at 50% -10%, rgba(157, 78, 221, 0.10), transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, repeat;
+    position: relative;
+}
+
+.app-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Screen Switcher setup */
+.app-screen {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 22px 18px; /* Roomier padding */
+    min-height: 100%;
+}
+
+/* Encabezado de pantalla (Galeria, Tienda, Misiones, etc.) - antes heredaba el estilo default
+   del navegador para h2/p, por eso se veia plano y sin jerarquia. */
+.screen-header-title {
+    margin-bottom: 22px;
+}
+
+.screen-header-title h2 {
+    font-family: var(--font-heading);
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.screen-header-title p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.app-screen.active {
+    display: block;
+    opacity: 1;
+}
+
+/* SCREEN: HOME - SEARCH BAR */
+.search-bar-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.search-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 50;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+}
+
+.search-dropdown.active {
+    display: block;
+}
+
+.search-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.search-dropdown-item:active {
+    background: rgba(157, 78, 221, 0.1);
+}
+
+.search-dropdown-item img {
+    width: 40px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.search-dropdown-item-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-dropdown-empty {
+    padding: 14px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.search-bar-container i {
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
+.search-bar-container input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    padding: 14px;
+    font-size: 15.5px;
+    width: 100%;
+}
+
+/* SCREEN: HOME - GENRE FILTER CHIPS */
+.genre-chips-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    touch-action: pan-x pan-y;
+    margin-bottom: 22px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+}
+
+.genre-chips-row::-webkit-scrollbar {
+    display: none;
+}
+
+.genre-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.genre-chip.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* Favorite heart button on covers */
+.fav-heart-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(6, 5, 11, 0.6);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.fav-heart-btn:active {
+    transform: scale(0.85);
+}
+
+.fav-heart-btn.active i {
+    color: #ff3366;
+}
+
+.fav-heart-btn.active {
+    /* Rebote al marcar favorito -antes el corazon solo cambiaba de color de golpe, sin ningun
+       gesto que confirme la accion. El "pop" (crece y vuelve) se siente como una confirmacion
+       satisfactoria en vez de un simple cambio de estado. */
+    animation: favPop 0.35s ease-out;
+}
+
+@keyframes favPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Views badge on covers */
+.views-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(6, 5, 11, 0.65);
+    color: var(--text-main);
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.empty-grid-msg {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14.5px;
+    line-height: 1.6;
+    padding: 36px 20px;
+    /* Cuando es el unico hijo de un grid (ej. .gallery-grid de 2 columnas), sin esto el mensaje
+       solo ocupa la primera columna y queda pegado a la mitad izquierda de la pantalla en vez
+       de centrado de verdad. grid-column no afecta nada si el padre no es un grid. */
+    grid-column: 1 / -1;
+}
+
+.btn-load-more {
+    display: block;
+    margin: 4px auto 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 10px 22px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.btn-load-more:disabled {
+    opacity: 0.6;
+}
+
+/* SCREEN: HOME - GACHA BANNER */
+.gacha-home-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(120deg, #2a1810, #1a1410 70%);
+    border: 1px solid var(--rarity-epic);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 28px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+    animation: bannerGlowPulse 3.5s ease-in-out infinite;
+}
+
+@keyframes bannerGlowPulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 rgba(212, 175, 55, 0); }
+    50%      { box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 18px rgba(212, 175, 55, 0.35); }
+}
+
+.gacha-home-banner::after {
+    /* Brillo diagonal que cruza el banner cada tanto -llama la atencion sin ser un parpadeo
+       molesto, como un destello de luz sobre metal dorado. Anima con transform (GPU-compositable)
+       en vez de "left" (forzaba recalculo de layout en cada frame, costoso durante scroll). */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    animation: bannerSheen 4.5s ease-in-out infinite;
+}
+
+@keyframes bannerSheen {
+    0%   { transform: translateX(0%); }
+    35%  { transform: translateX(475%); }
+    100% { transform: translateX(475%); }
+}
+
+.gacha-home-banner-icon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--rarity-epic);
+    color: #1a1410;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.gacha-home-banner-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.gacha-home-banner-tag {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--rarity-epic);
+}
+
+.gacha-home-banner-text h3 {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 800;
+    margin: 2px 0 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gacha-home-banner-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.gacha-home-banner-arrow {
+    color: var(--rarity-epic);
+    flex-shrink: 0;
+}
+
+.continue-reading-section {
+    margin-bottom: 28px;
+}
+
+.continue-reading-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    touch-action: pan-x pan-y;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+}
+
+.continue-reading-row::-webkit-scrollbar {
+    display: none;
+}
+
+.continue-card {
+    flex-shrink: 0;
+    width: 110px;
+    cursor: pointer;
+}
+
+.continue-card .cover-wrap {
+    position: relative;
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.continue-card img {
+    width: 110px;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    display: block;
+    margin-bottom: 0;
+}
+
+.continue-card-title {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.continue-card-chapter {
+    font-size: 12px;
+    color: var(--gem-color);
+    font-weight: 600;
+}
+
+/* SCREEN: HOME - MANGA SECTIONS */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 700;
+    position: relative;
+    padding-left: 14px;
+}
+
+.section-header h3::before {
+    /* Acento vertical violeta -antes los titulos de seccion eran texto plano sin ninguna
+       marca visual, indistinguibles de un parrafo en negrita. Da caracter "editorial" sin
+       agregar ningun elemento nuevo al HTML. */
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 4px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--primary), var(--gem-color));
+}
+
+.manga-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px; /* Roomier grid */
+    margin-bottom: 28px;
+}
+
+.manga-card {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    /* Revelado en cascada: cada tarjeta la anima app.js con animation-delay segun su indice
+       en la grilla (ver renderMangaCard), asi no aparecen todas de golpe al cargar. "both"
+       mantiene el estado final (opacity:1) despues de terminar, no vuelve a opacity:0. */
+    animation: fadeInUp 0.4s ease-out both;
+}
+
+.manga-card:active {
+    transform: scale(0.96);
+}
+
+.manga-cover {
+    aspect-ratio: 9 / 16; /* Las portadas reales vienen en esta proporcion, con el titulo incluido en la imagen */
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border-color);
+    margin-bottom: 10px;
+    transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.manga-card:hover .manga-cover {
+    /* Brillo violeta al pasar el mouse/tocar (desktop hover, pero tambien se activa un instante
+       en tap de mobile) - antes la portada era completamente plana, sin ninguna señal de que
+       es interactiva mas alla del cursor. */
+    border-color: var(--primary);
+    box-shadow: var(--glow-primary);
+}
+
+.manga-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s ease, transform 0.4s ease;
+}
+
+.manga-card:hover .manga-cover img {
+    transform: scale(1.04);
+}
+
+.manga-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 6px;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.manga-badge.update {
+    background: var(--accent);
+    color: #fff;
+}
+
+.manga-badge.adult-badge {
+    background: #c1121f;
+    color: #fff;
+}
+
+.manga-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.manga-chapters {
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
+/* NSFW COVER BLUR STYLING */
+.adult-content .manga-cover img.blurred {
+    filter: blur(20px);
+}
+
+.nsfw-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    gap: 8px;
+    z-index: 1;
+}
+
+.adult-content .manga-cover img.blurred + .nsfw-overlay,
+.adult-content .manga-detail-cover img.blurred + .nsfw-overlay {
+    display: flex;
+}
+
+/* SCREEN: GALLERY */
+.gallery-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+/* Fila con el filtro por proyecto + el orden (Recientes/Populares) - antes flotaban sueltos
+   directo sobre el fondo oscuro, sin ninguna caja que los agrupe visualmente. */
+.gallery-controls-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.gallery-controls-row .gallery-project-filter {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.gallery-controls-row .gallery-project-filter input {
+    background: var(--bg-dark);
+}
+
+.gallery-sort-toggle {
+    display: flex;
+    background: var(--bg-dark);
+    border-radius: 20px;
+    padding: 3px;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.gallery-sort-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gallery-sort-btn.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(157, 78, 221, 0.4);
+}
+
+/* Censura +18 en las tarjetas de la galeria (mismo criterio que las portadas) */
+.waifu-image img.nsfw-blurred {
+    filter: blur(22px);
+}
+
+.gallery-card-nsfw {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 2;
+    cursor: pointer;
+}
+
+/* Visor de foto a pantalla completa (lightbox) */
+.gallery-viewer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.gallery-viewer-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.gallery-viewer-inner {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transform: scale(0.92) translateY(10px);
+    transition: transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.gallery-viewer-overlay.active .gallery-viewer-inner {
+    transform: scale(1) translateY(0);
+}
+
+.gallery-viewer-close {
+    position: absolute;
+    top: calc(16px + var(--safe-top));
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.gallery-viewer-img-wrap {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg-dark);
+}
+
+.gallery-viewer-img-wrap img {
+    width: 100%;
+    max-height: 65vh;
+    object-fit: contain;
+    display: block;
+}
+
+.gallery-viewer-img-wrap img.nsfw-blurred {
+    filter: blur(30px);
+}
+
+.gallery-viewer-nsfw {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.gallery-viewer-meta h3 {
+    font-size: 17px;
+    margin-bottom: 4px;
+    color: var(--text-main);
+}
+
+.gallery-viewer-meta p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.gallery-viewer-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-gallery-delete {
+    background: rgba(255, 59, 48, 0.15);
+    border: 1px solid rgba(255, 59, 48, 0.5);
+    color: #ff6b61;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-gallery-boost,
+.btn-gallery-unlock-hd {
+    background: rgba(255, 215, 0, 0.12);
+    border: 1px solid rgba(255, 215, 0, 0.45);
+    color: #ffd700;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    align-items: center;
+    gap: 6px;
+}
+
+.gallery-boost-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(255, 215, 0, 0.85);
+    color: #1a1530;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Pantalla "Mis Descargas" (Pergaminos de Minas Tirith) */
+.download-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: rgba(157, 78, 221, 0.06);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+
+.download-item-info h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+}
+
+.download-item-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.btn-remove-download {
+    background: rgba(255, 69, 58, 0.12);
+    border: 1px solid rgba(255, 69, 58, 0.4);
+    color: #ff453a;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Caja de reglas + eleccion +18 en el modal de subida */
+.gallery-rules-box {
+    background: rgba(157, 78, 221, 0.08);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.gallery-rules-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.gallery-rules-box ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.gallery-rules-box li {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.required-mark {
+    color: var(--rarity-legendary);
+    font-weight: 700;
+}
+
+.gallery-nsfw-choice {
+    display: flex;
+    gap: 10px;
+}
+
+.gallery-nsfw-opt {
+    flex: 1;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.gallery-nsfw-opt.active {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(157, 78, 221, 0.12);
+}
+
+.admin-nsfw-tag {
+    background: var(--rarity-legendary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    vertical-align: middle;
+}
+
+.gallery-tabs {
+    display: flex;
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    gap: 2px;
+}
+
+.gallery-tab {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.gallery-tab.active {
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.25), rgba(123, 44, 191, 0.1));
+    color: var(--primary);
+    box-shadow: inset 0 0 0 1px rgba(157, 78, 221, 0.5);
+}
+
+.gallery-tab.gacha-tab-live {
+    color: var(--rarity-epic);
+    position: relative;
+}
+
+.gallery-tab.gacha-tab-live.active {
+    background: var(--rarity-epic);
+    color: #1a1410;
+}
+
+.gallery-tab.gacha-tab-live::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--rarity-epic);
+    animation: pulse 1.5s infinite;
+}
+
+/* Boton del Gacha aparte del grupo Todos/Staff/Fans: antes vivia adentro de esa misma pildora
+   scrolleable y a veces quedaba cortado en pantallas angostas. Ahora es su propio boton, mas
+   grande y con color propio, para que tenga el protagonismo que le corresponde (es el motor de
+   retencion/economia del grupo). */
+.gallery-gacha-standalone {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.08));
+    border: 1.5px solid var(--rarity-epic);
+    color: var(--rarity-epic);
+    font-size: 13.5px;
+    font-weight: 800;
+    padding: 10px 16px;
+    border-radius: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.25);
+}
+
+.gallery-gacha-standalone.active,
+.gallery-gacha-standalone.gacha-tab-live.active {
+    background: var(--rarity-epic);
+    color: #1a1410;
+}
+
+/* Boton flotante de subir foto: antes competia al lado de las pestañas, ahora queda fuera del
+   paso de cualquier otro control, flotando sobre la grilla. */
+.gallery-upload-fab {
+    position: fixed;
+    right: 20px;
+    bottom: calc(86px + var(--safe-bottom));
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border: none;
+    color: #fff;
+    font-size: 19px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(157, 78, 221, 0.45);
+    z-index: 20;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.gallery-upload-fab:active {
+    transform: scale(0.9);
+    box-shadow: 0 3px 10px rgba(157, 78, 221, 0.5);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+}
+
+.waifu-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    animation: fadeInUp 0.4s ease-out both;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.waifu-card:active {
+    transform: scale(0.97);
+}
+
+.waifu-card:hover {
+    border-color: rgba(157, 78, 221, 0.4);
+    box-shadow: var(--glow-primary);
+}
+
+.waifu-image {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+}
+
+.waifu-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.waifu-card:hover .waifu-image img {
+    transform: scale(1.06);
+}
+
+/* ===== Gacha / Álbum de Galería ===== */
+.gacha-no-season-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 36px 20px;
+    text-align: center;
+}
+
+.gacha-no-season-box i {
+    font-size: 30px;
+    color: var(--primary);
+    margin-bottom: 12px;
+}
+
+.gacha-no-season-box p {
+    font-size: 14px;
+}
+
+.gacha-no-season-subtitle {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* Tarjeta "hero": agrupa temporada + pity + tirar en un solo bloque con identidad propia, en
+   vez de que floten sueltos directo sobre el fondo negro (se sentia amontonado). */
+.gacha-hero-card {
+    background: var(--bg-surface);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 22px;
+    animation: fadeInUp 0.45s ease-out both, gachaHeroGlow 3.5s ease-in-out infinite;
+}
+
+@keyframes gachaHeroGlow {
+    0%, 100% { box-shadow: 0 0 0 rgba(212, 175, 55, 0); }
+    50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.18); }
+}
+
+.gacha-hero-card .gacha-pull-buttons {
+    margin-bottom: 0;
+}
+
+.gacha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.gacha-header h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 2px;
+}
+
+.gacha-season-dates {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.gacha-rewards-link {
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--rarity-epic);
+    margin-top: 12px;
+    cursor: pointer;
+}
+
+.gacha-pull-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.btn-gacha-pull {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 0;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(157, 78, 221, 0.35);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.btn-gacha-pull:active:not(:disabled) {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(157, 78, 221, 0.4);
+}
+
+.btn-gacha-pull.btn-gacha-pull-x {
+    flex: 0 0 auto;
+    padding: 14px 16px;
+    font-size: 13px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+}
+
+.btn-gacha-pull.btn-gacha-pull-x:active:not(:disabled) {
+    box-shadow: none;
+}
+
+.btn-gacha-pull:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* Barra de progreso hacia el Maiar garantizado (pity cada 15 tiradas). Se pone dorada y
+   parpadea cuando falta exactamente 1 tirada - el momento "no vas a cerrar la app sin tirar". */
+.gacha-pity-bar {
+    position: relative;
+    height: 22px;
+    border-radius: 11px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    margin-bottom: 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.gacha-pity-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--gem-color));
+    transition: width 0.4s ease;
+}
+
+.gacha-pity-bar span {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.gacha-pity-bar.imminent {
+    border-color: var(--rarity-epic);
+}
+
+.gacha-pity-bar.imminent .gacha-pity-bar-fill {
+    background: linear-gradient(90deg, var(--rarity-epic), #fff3c4);
+    animation: gacha-pity-imminent-flash 0.9s ease-in-out infinite;
+}
+
+.gacha-pity-bar.imminent span {
+    color: #1a1410;
+}
+
+@keyframes gacha-pity-imminent-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+
+.gacha-progress {
+    margin-bottom: 18px;
+}
+
+.gacha-progress span {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.gacha-progress-bar {
+    height: 8px;
+    background: var(--bg-card);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.gacha-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--gem-color));
+    transition: width 0.3s ease;
+}
+
+.gacha-section-block {
+    margin-bottom: 22px;
+}
+
+.gacha-section-title {
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 14px;
+}
+
+.gacha-section-title i {
+    color: var(--rarity-epic);
+}
+
+.gacha-album-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.gacha-card-slot {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    aspect-ratio: 3/4;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition-fast);
+}
+
+.gacha-card-slot.owned:active {
+    transform: scale(0.95);
+}
+
+.gacha-card-slot.locked {
+    color: var(--text-muted);
+    justify-content: center;
+}
+
+.gacha-card-slot.locked i {
+    font-size: 20px;
+}
+
+.gacha-card-slot.owned {
+    border-color: var(--rarity-common);
+}
+
+.gacha-card-slot.owned.rarity-rare { border-color: var(--rarity-rare); }
+.gacha-card-slot.owned.rarity-epic { border-color: var(--rarity-epic); }
+.gacha-card-slot.owned.rarity-legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 10px rgba(255, 201, 77, 0.35); }
+
+.gacha-card-slot img {
+    width: 100%;
+    flex: 1;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.gacha-card-name {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+    width: 100%;
+    flex-shrink: 0;
+    /* Antes se cortaba a la mitad de una linea con nombres largos (ej "Jang Mihee") porque la
+       caja tenia overflow:hidden y la imagen (flex:1) le quitaba todo el espacio sobrante. Con
+       flex-shrink:0 el nombre reserva su espacio siempre, y el line-clamp corta limpio con "..."
+       en vez de a la mitad de un caracter. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gacha-card-qty {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+}
+
+.gacha-card-rarity-tag {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.gacha-card-rarity-tag.rarity-common { color: var(--rarity-common); }
+.gacha-card-rarity-tag.rarity-rare { color: var(--rarity-rare); }
+.gacha-card-rarity-tag.rarity-epic { color: var(--rarity-epic); }
+.gacha-card-rarity-tag.rarity-legendary { color: var(--rarity-legendary); }
+
+.gacha-rewards-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.gacha-rewards-box h4 {
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.gacha-rewards-box h4 i {
+    color: var(--rarity-epic);
+}
+
+.gacha-reward-row {
+    font-size: 13px;
+    padding: 5px 0;
+    color: var(--text-muted);
+}
+
+.gacha-leaderboard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.gacha-leaderboard h4 {
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.gacha-leaderboard h4 i {
+    color: var(--rarity-legendary);
+}
+
+.gacha-leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13.5px;
+}
+
+.gacha-leaderboard-row:last-child {
+    border-bottom: none;
+}
+
+.gacha-leaderboard-date {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Archivo de temporadas pasadas: lista de albumes viejos + el detalle de uno (solo lectura,
+   sin botones de tirar ni barra de pity - ya no se puede jugar esa temporada). */
+.gacha-archive-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 250;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.gacha-archive-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.gacha-archive-card {
+    background: var(--bg-darker);
+    border-radius: 22px 22px 0 0;
+    width: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+    padding-top: calc(18px + var(--safe-top));
+}
+
+.gacha-archive-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+}
+
+.gacha-archive-header h3 {
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.gacha-archive-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.gacha-archive-body {
+    overflow-y: auto;
+    padding-bottom: calc(10px + var(--safe-bottom));
+}
+
+.gacha-archive-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.gacha-archive-item h4 {
+    font-size: 14.5px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.gacha-archive-item i {
+    color: var(--text-muted);
+}
+
+.gacha-archive-back {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0;
+    margin-bottom: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#gacha-archive-detail-view h3 {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.gacha-reveal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.gacha-reveal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Tablero de suspenso antes del resultado real: un dado/ficha avanza casilla por casilla
+   (estilo mesa de juego) y frena hasta caer exactamente en la casilla final, que ya viene
+   coloreada con la rareza real obtenida (ver playGachaBoardAnimation en app.js). Las casillas
+   de en medio son solo decorado/suspenso, no afectan el resultado - ese ya lo decidio el
+   servidor desde antes. */
+.gacha-board-row {
+    padding: 14px 0 6px;
+    text-align: center;
+}
+
+.gacha-board-secured {
+    color: var(--rarity-legendary);
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.gacha-board-secured.show {
+    opacity: 1;
+}
+
+/* "El Perímetro de la Tierra Media": anillo de 12 casillas en un grid 4x4 (solo el borde, el
+   hueco central de 2x2 es donde la carta termina apareciendo - ver playGachaBoardAnimation y
+   GACHA_BOARD_POSITIONS en app.js). Las casillas son position:absolute posicionadas a mano por
+   JS (no por grid-area) porque necesitan animar suave de una a otra incluyendo las esquinas,
+   algo que un cambio de grid-area no puede animar. */
+.gacha-board-grid {
+    position: relative;
+    width: 218px;
+    height: 218px;
+    margin: 22px auto 4px;
+}
+
+.gacha-board-tile {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background: var(--bg-dark);
+    border: 2px solid var(--border-color);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gacha-board-tile.rarity-common { border-color: var(--rarity-common); }
+.gacha-board-tile.rarity-rare { border-color: var(--rarity-rare); }
+.gacha-board-tile.rarity-epic { border-color: var(--rarity-epic); box-shadow: 0 0 6px rgba(212, 175, 55, 0.4); }
+.gacha-board-tile.rarity-legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 8px rgba(255, 59, 48, 0.5); }
+
+.gacha-board-tile.passed {
+    background: rgba(157, 78, 221, 0.35);
+}
+
+.gacha-board-tile.landed {
+    transform: scale(1.18);
+    z-index: 2;
+}
+
+.gacha-board-tile.rarity-common.landed { box-shadow: 0 0 16px 4px var(--rarity-common); }
+.gacha-board-tile.rarity-rare.landed { box-shadow: 0 0 16px 4px var(--rarity-rare); }
+.gacha-board-tile.rarity-epic.landed { box-shadow: 0 0 20px 5px var(--rarity-epic); }
+.gacha-board-tile.rarity-legendary.landed { box-shadow: 0 0 24px 6px var(--rarity-legendary); }
+
+.gacha-board-token {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--gem-color);
+    z-index: 3;
+    transition: left 0.16s cubic-bezier(0.3, 0, 0.2, 1), top 0.16s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+/* Zoom de carta: click en una miniatura del album o de un lote para verla grande */
+.gacha-card-zoom-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 30px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.gacha-card-zoom-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.gacha-card-zoom-overlay img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+}
+
+.gacha-card-zoom-overlay p {
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    text-align: center;
+}
+
+.gacha-reveal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 24px;
+    width: 78%;
+    max-width: 280px;
+    text-align: center;
+    transform: scale(0.85);
+    transition: transform 0.25s ease;
+    position: relative;
+    overflow: visible;
+}
+
+.gacha-reveal-overlay.active .gacha-reveal-card {
+    transform: scale(1);
+}
+
+/* Entrada por rareza al revelar - rediseñadas tras consultar el diseño con otra IA (ver
+   GACHA_SEASONS_PLANNING.md, Ronda 2). Cada una es una secuencia con etapas (no solo un brillo
+   en loop), generadas en #gacha-fx-layer por applyGachaRarityFx() en app.js. Las que afectan al
+   contenido real de la carta (img/nombre/manga/badge) usan la misma duracion que su secuencia
+   de FX para que todo termine sincronizado. El boton de cerrar NUNCA se anima ni se oculta -
+   tiene que poder cerrarse el modal en cualquier momento. */
+
+.gacha-fx-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+
+/* ===== Hobbit (comun, 60%) - "La Puerta Verde": calma, sin estres, rapida porque se ve 6 de
+   cada 10 tiradas. ===== */
+.gacha-fx-door {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70px;
+    height: 70px;
+    margin: -35px 0 0 -35px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #3a6b41, #1b3a20);
+    animation: gacha-fx-door-open 0.7s ease-in forwards;
+}
+
+@keyframes gacha-fx-door-open {
+    0% { transform: rotateY(0deg) scale(1); opacity: 1; background: radial-gradient(circle, #3a6b41, #1b3a20); }
+    45% { transform: rotateY(85deg) scale(1.1); opacity: 1; background: radial-gradient(circle, #ffe9a8, #caa53d); }
+    100% { transform: rotateY(180deg) scale(0.8); opacity: 0; }
+}
+
+.common-reveal #gacha-reveal-img,
+.common-reveal #gacha-reveal-name {
+    animation: gacha-fx-rise-in 0.5s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes gacha-fx-rise-in {
+    0% { transform: translateY(30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ===== Rohirrim (rara, 28%) - "La Carga del Rey": un corte de espada cruza la pantalla y
+   sacude la carta, brillo de acero en el borde. ===== */
+.gacha-fx-sword-cut {
+    position: absolute;
+    inset: -24px;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.gacha-fx-sword-cut::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -60%;
+    width: 40px;
+    height: 180%;
+    background: linear-gradient(90deg, transparent, #eaf3fb, transparent);
+    transform: skewX(-25deg) translateX(-100px);
+    animation: gacha-fx-sword-slide 0.5s 0.2s ease-in forwards;
+}
+
+@keyframes gacha-fx-sword-slide {
+    0% { transform: skewX(-25deg) translateX(-120px); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: skewX(-25deg) translateX(420px); opacity: 1; }
+}
+
+.rare-reveal .gacha-reveal-card {
+    border-color: var(--rarity-rare);
+    animation: gacha-fx-rare-shake 0.4s 0.35s ease-out 1, gacha-rare-pulse 1.8s 0.75s ease-in-out infinite;
+}
+
+@keyframes gacha-fx-rare-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-3px); }
+}
+
+@keyframes gacha-rare-pulse {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(124, 147, 168, 0.3); }
+    50% { box-shadow: 0 0 18px 4px rgba(124, 147, 168, 0.5); }
+}
+
+/* ===== Maiar (epica, 10%) - "El Tengwar Arcano": anillo de runas que gira y colapsa al
+   centro, flash blanco, despues la carta queda flotando suave en loop. ===== */
+.gacha-fx-rune-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 110px;
+    height: 110px;
+    margin: -55px 0 0 -55px;
+    animation: gacha-fx-rune-collapse 1.1s ease-in forwards;
+}
+
+.gacha-fx-rune {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: var(--rarity-epic);
+    font-size: 14px;
+    text-shadow: 0 0 6px var(--rarity-epic);
+}
+
+@keyframes gacha-fx-rune-collapse {
+    0% { transform: rotate(0deg) scale(1); opacity: 1; }
+    80% { transform: rotate(300deg) scale(0.15); opacity: 1; }
+    100% { transform: rotate(340deg) scale(0); opacity: 0; }
+}
+
+.gacha-fx-whiteflash {
+    position: absolute;
+    inset: -24px;
+    background: #fff;
+    border-radius: 20px;
+    animation: gacha-fx-whiteflash-seq 0.35s 1.0s ease-out forwards;
+}
+
+@keyframes gacha-fx-whiteflash-seq {
+    0% { opacity: 0; }
+    35% { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+
+.epic-reveal .gacha-reveal-card {
+    border-color: var(--rarity-epic);
+    animation: gacha-epic-pulse 1.4s 1.2s ease-in-out infinite, gacha-fx-epic-float 3s 1.4s ease-in-out infinite;
+}
+
+@keyframes gacha-epic-pulse {
+    0%, 100% { box-shadow: 0 0 14px 2px rgba(212, 175, 55, 0.4); }
+    50% { box-shadow: 0 0 26px 6px rgba(212, 175, 55, 0.65); }
+}
+
+@keyframes gacha-fx-epic-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.epic-reveal #gacha-reveal-img,
+.epic-reveal #gacha-reveal-name {
+    animation: gacha-fx-epic-reveal-content 1.2s 0.2s ease-out both;
+}
+
+@keyframes gacha-fx-epic-reveal-content {
+    0%, 75% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* ===== Anillo Unico (legendaria, 2%) - "Orodruin": apagon total, un anillo se dibuja en la
+   oscuridad, implosiona y la carta estalla con un resplandor de magma. Vibracion fuerte del
+   celular en el golpe (Haptics, ver applyGachaRarityFx en app.js - lo unico que una web normal
+   no podria hacer). ===== */
+.gacha-fx-blackout {
+    position: absolute;
+    inset: -24px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 10;
+    animation: gacha-fx-blackout-seq 2.8s ease-out forwards;
+}
+
+@keyframes gacha-fx-blackout-seq {
+    0% { opacity: 0; }
+    8% { opacity: 1; }
+    55% { opacity: 1; }
+    70% { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+.gacha-fx-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    transform: translate(-50%, -50%);
+    z-index: 11;
+    animation: gacha-fx-ring-seq 2.8s ease-out forwards;
+}
+
+@keyframes gacha-fx-ring-seq {
+    0%, 7% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    12% { opacity: 1; }
+    55% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    68% { opacity: 0; transform: translate(-50%, -50%) scale(1.7); }
+    100% { opacity: 0; }
+}
+
+.gacha-fx-ring circle.gacha-fx-ring-track {
+    stroke: rgba(255, 59, 48, 0.25);
+    fill: none;
+    stroke-width: 4;
+}
+
+.gacha-fx-ring circle.gacha-fx-ring-draw {
+    stroke: var(--rarity-legendary);
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    animation: gacha-fx-ring-draw 1.3s 0.4s ease-out forwards;
+}
+
+@keyframes gacha-fx-ring-draw {
+    from { stroke-dashoffset: 251; }
+    to { stroke-dashoffset: 0; }
+}
+
+.legendary-reveal {
+    animation: gacha-fx-legendary-overlay-flash 2.8s ease-out 1;
+}
+
+@keyframes gacha-fx-legendary-overlay-flash {
+    0%, 60% { background-color: rgba(0, 0, 0, 0.75); }
+    66% { background-color: rgba(50, 5, 0, 0.92); }
+    100% { background-color: rgba(0, 0, 0, 0.75); }
+}
+
+.legendary-reveal .gacha-reveal-card {
+    border-color: var(--rarity-legendary);
+    animation: gacha-legendary-pulse 1.6s 1.9s ease-in-out infinite, gacha-fx-legendary-explode 2.8s ease-out 1;
+}
+
+@keyframes gacha-legendary-pulse {
+    0%, 100% { box-shadow: 0 0 16px 2px rgba(255, 201, 77, 0.35); }
+    50% { box-shadow: 0 0 32px 8px rgba(255, 201, 77, 0.65); }
+}
+
+@keyframes gacha-fx-legendary-explode {
+    0%, 62% { transform: scale(1); }
+    72% { transform: scale(1.18); }
+    85% { transform: scale(0.96); }
+    100% { transform: scale(1); }
+}
+
+.legendary-reveal #gacha-reveal-img,
+.legendary-reveal #gacha-reveal-name,
+.legendary-reveal #gacha-reveal-manga,
+.legendary-reveal #gacha-reveal-rarity {
+    animation: gacha-fx-legendary-content-reveal 2.8s ease-out both;
+}
+
+@keyframes gacha-fx-legendary-content-reveal {
+    0%, 62% { opacity: 0; }
+    74% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+/* Resultado de una tirada x5/x10: cuadricula con todas las cartas del lote, en vez de pasarlas
+   una por una. */
+.gacha-reveal-multi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 4px 0 12px;
+}
+
+.gacha-reveal-mini-card {
+    position: relative;
+    border: 2px solid var(--rarity-common);
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    background: var(--bg-dark);
+}
+
+.gacha-reveal-mini-card.rarity-rare { border-color: var(--rarity-rare); }
+.gacha-reveal-mini-card.rarity-epic { border-color: var(--rarity-epic); box-shadow: 0 0 8px rgba(212, 175, 55, 0.4); }
+.gacha-reveal-mini-card.rarity-legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 10px rgba(255, 59, 48, 0.5); }
+
+.gacha-reveal-mini-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.gacha-reveal-mini-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 8.5px;
+    font-weight: 600;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    padding: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gacha-reveal-mini-dup {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--gem-color);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 6px;
+}
+
+.gacha-sparkle {
+    position: absolute;
+    bottom: 10%;
+    pointer-events: none;
+    z-index: 12;
+    animation: gacha-sparkle-float 1.4s ease-out forwards;
+}
+
+@keyframes gacha-sparkle-float {
+    0% { opacity: 0; transform: translateY(0) scale(0.6); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-140px) scale(1.1); }
+}
+
+/* Hojas del Hobbit: caen desde arriba en vez de subir, con un vaiven lateral suave. */
+.gacha-sparkle.gacha-leaf {
+    top: -8%;
+    bottom: auto;
+    animation: gacha-leaf-fall 1.8s ease-in forwards;
+}
+
+@keyframes gacha-leaf-fall {
+    0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+    15% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(150px) rotate(140deg); }
+}
+
+.gacha-reveal-card img {
+    width: 100%;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+}
+
+.gacha-reveal-card h3 {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.gacha-rarity-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.gacha-rarity-badge.rarity-common { color: var(--rarity-common); }
+.gacha-rarity-badge.rarity-rare { color: var(--rarity-rare); }
+.gacha-rarity-badge.rarity-epic { color: var(--rarity-epic); }
+.gacha-rarity-badge.rarity-legendary { color: var(--rarity-legendary); }
+
+.gacha-reveal-duplicate {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+}
+
+.btn-gacha-reveal-close {
+    width: 100%;
+    margin-top: 16px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 0;
+    font-weight: 600;
+    cursor: pointer;
+}
+/* ===== Fin Gacha ===== */
+
+.uploader-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: #fff;
+}
+
+.uploader-badge.admin {
+    background: var(--accent);
+}
+
+.uploader-badge.user {
+    background: #0096c7;
+}
+
+.waifu-info {
+    padding: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.waifu-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-main);
+    line-height: 1.4;
+}
+
+.waifu-manga-tag {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.gallery-project-filter {
+    margin-bottom: 14px;
+}
+
+.gallery-project-filter input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: normal;
+    outline: none;
+    /* El WebView de Android a veces no centra el texto de un <input> aunque el padding sea
+       parejo arriba/abajo - fijar la altura real (en vez de dejarla "auto" por el padding)
+       fuerza al texto a centrarse de verdad dentro de esa caja. */
+    height: 42px;
+}
+
+.gallery-filter-active-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(157, 78, 221, 0.15);
+    color: var(--primary);
+    border-radius: 16px;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-top: 8px;
+    width: fit-content;
+}
+
+.gallery-filter-active-tag i {
+    cursor: pointer;
+}
+
+.detail-gallery-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+    margin: 4px 0 16px;
+    cursor: pointer;
+}
+
+.waifu-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-like {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 18px;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btn-like:active {
+    transform: scale(0.94);
+}
+
+.btn-like.liked {
+    color: var(--primary);
+    background: rgba(157, 78, 221, 0.15);
+    border-color: rgba(157, 78, 221, 0.4);
+}
+
+.btn-like.like-pop {
+    animation: favPop 0.35s ease-out;
+}
+
+.download-premium {
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(157, 78, 221, 0.12);
+    color: var(--gem-color);
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(157, 78, 221, 0.25);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* SCREEN: STORE (TIENDA DE MARCOS Y RUNAS) */
+.store-section {
+    margin-bottom: 28px;
+}
+
+.section-title-small {
+    font-family: var(--font-heading);
+    font-size: 16.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title-small i {
+    color: var(--primary);
+}
+
+.frames-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+}
+
+.store-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    animation: fadeInUp 0.4s ease-out both;
+}
+
+.store-item:active {
+    transform: scale(0.96);
+}
+
+.frames-grid .store-item:nth-child(1) { animation-delay: 0s; }
+.frames-grid .store-item:nth-child(2) { animation-delay: 0.04s; }
+.frames-grid .store-item:nth-child(3) { animation-delay: 0.08s; }
+.frames-grid .store-item:nth-child(4) { animation-delay: 0.12s; }
+.frames-grid .store-item:nth-child(5) { animation-delay: 0.16s; }
+
+.store-item.frame-item:hover {
+    border-color: rgba(157, 78, 221, 0.4);
+    box-shadow: var(--glow-primary);
+}
+
+/* La tienda de marcos compra solo via el boton -no toda la ficha-, asi se evitan compras
+   accidentales al tocar el titulo o la descripcion (bug reportado 2026-06-29). */
+.store-item.frame-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+}
+
+.store-item.frame-item:active {
+    transform: none;
+}
+
+.store-item.frame-item .btn-buy-store {
+    margin-top: auto;
+}
+
+.store-item.frame-item.frame-in-use {
+    border-color: rgba(255, 215, 0, 0.45);
+    box-shadow: var(--glow-legendary);
+}
+
+.store-item.store-purchase-flash {
+    animation: storePurchaseFlash 0.5s ease-out;
+}
+
+@keyframes storePurchaseFlash {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.045); box-shadow: var(--glow-legendary); }
+    100% { transform: scale(1); }
+}
+
+.frame-preview-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+    padding: 10px;
+}
+
+.aura-preview-box {
+    align-items: center;
+    height: 60px;
+}
+
+.aura-preview-text {
+    font-size: 18px;
+}
+
+.avatar-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    background: #1a1530;
+}
+
+/* Los marcos overlay (Barad-dur, Lorien, Concilio) ya traen su propio borde dibujado en el
+   WebP -el aro fino genérico del circulo de abajo se veia encima y chocaba con el arte-. */
+.avatar-preview-overlay {
+    border-color: transparent;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.store-item h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.store-item p {
+    font-size: 12px;
+    color: #b8aed1;
+    margin-bottom: 14px;
+    line-height: 1.35;
+}
+
+.btn-buy-store {
+    width: 100%;
+    background: transparent;
+    border: 1.5px solid var(--primary);
+    color: var(--gem-color);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-buy-store.can-afford {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 3px 12px rgba(157, 78, 221, 0.35);
+}
+
+.btn-buy-store.can-afford:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 6px rgba(157, 78, 221, 0.4);
+}
+
+.btn-buy-store.btn-owned {
+    background: transparent;
+    border-color: rgba(180, 170, 210, 0.4);
+    color: #b8aed1;
+}
+
+.btn-buy-store.btn-equipped {
+    background: transparent;
+    border-color: rgba(255, 215, 0, 0.6);
+    color: #ffd700;
+    cursor: default;
+}
+
+/* SCREEN: MISSIONS / EVENTS */
+.event-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    animation: fadeInUp 0.4s ease-out both;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.event-card:not(.locked):hover {
+    border-color: rgba(157, 78, 221, 0.35);
+    box-shadow: var(--glow-primary);
+}
+
+.event-card.locked {
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+.event-info h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.event-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.btn-action-coin {
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 9px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 10px rgba(157, 78, 221, 0.25);
+    transition: transform 0.2s ease;
+}
+
+.btn-action-coin:active {
+    transform: scale(0.92);
+}
+
+.badge-event-progress {
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--bg-darker);
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: var(--text-muted);
+}
+
+/* Misiones diarias/semanales: mismo .event-card de arriba, con una barra de progreso agregada
+   debajo de la descripcion. */
+.mission-card {
+    align-items: flex-start;
+}
+
+.mission-card.claimed {
+    opacity: 0.55;
+}
+
+.mission-progress-bar {
+    position: relative;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--bg-darker);
+    overflow: hidden;
+    margin-top: 8px;
+    max-width: 220px;
+}
+
+.mission-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--gem-color));
+    transition: width 0.4s ease;
+}
+
+.btn-action-coin.can-claim {
+    animation: mission-claim-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mission-claim-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(157, 78, 221, 0.5); }
+    50%      { box-shadow: 0 0 0 6px rgba(157, 78, 221, 0); }
+}
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+}
+
+.shop-item {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.shop-item:active {
+    transform: scale(0.95);
+}
+
+.shop-item.vip-item {
+    border-color: rgba(157, 78, 221, 0.4);
+    background: linear-gradient(to bottom, var(--bg-card), rgba(157, 78, 221, 0.12));
+    grid-column: span 2;
+}
+
+.shop-coins {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.shop-item i {
+    color: var(--gem-color);
+}
+
+.shop-price {
+    font-size: 13.5px;
+    font-weight: 700;
+    background: var(--bg-darker);
+    padding: 5px 12px;
+    border-radius: 30px;
+    color: var(--gem-color);
+}
+
+.shop-item-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 8px 0 0;
+    line-height: 1.4;
+}
+
+/* Patreon tier cards */
+.patreon-tiers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.patreon-tier-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 13px;
+}
+
+.patreon-tier-card.ptier-vip {
+    border-color: rgba(157, 78, 221, 0.5);
+    background: linear-gradient(to bottom, var(--bg-card), rgba(157, 78, 221, 0.1));
+}
+
+.patreon-tier-card.ptier-premium {
+    border-color: rgba(212, 175, 55, 0.5);
+    background: linear-gradient(to bottom, var(--bg-card), rgba(212, 175, 55, 0.08));
+}
+
+.patreon-tier-card.ptier-active {
+    border-width: 2px;
+    border-color: #4ade80;
+}
+
+.ptier-badge {
+    display: inline-block;
+    font-size: .65em;
+    font-weight: 800;
+    letter-spacing: .05em;
+    background: rgba(157, 78, 221, 0.25);
+    color: #c084fc;
+    border-radius: 6px;
+    padding: 2px 7px;
+    margin-bottom: 5px;
+}
+
+.ptier-badge-gold {
+    background: rgba(212, 175, 55, 0.2);
+    color: #d4af37;
+}
+
+.ptier-badge-active {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+.ptier-name {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 3px;
+    color: var(--text-primary);
+}
+
+.ptier-price {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.ptier-perks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+.ptier-perks i {
+    width: 14px;
+    color: var(--gem-color);
+    margin-right: 3px;
+}
+
+.btn-patreon {
+    background: #f96854;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity .2s;
+}
+
+.btn-patreon:active { opacity: .8; }
+
+.patreon-connected-box {
+    background: rgba(74, 222, 128, 0.08);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.patreon-connected-box span { flex: 1; }
+
+.btn-small {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+/* Modal de pago Binance */
+.binance-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.binance-modal {
+    background: var(--bg-card);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 32px;
+    width: 100%;
+    max-width: 480px;
+}
+
+.binance-modal h3 { margin: 0 0 4px; font-size: 17px; }
+
+.binance-modal .bm-ref {
+    background: var(--bg-darker);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: monospace;
+    font-size: 13px;
+    word-break: break-all;
+    color: #c084fc;
+    margin: 12px 0;
+    cursor: pointer;
+}
+
+.binance-modal .bm-step {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: flex;
+    gap: 8px;
+}
+
+.binance-modal .bm-step strong { color: var(--text-primary); }
+
+.bm-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.bm-actions button {
+    flex: 1;
+    border: none;
+    border-radius: 12px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.bm-btn-paid   { background: #4ade80; color: #0f0f1a; }
+.bm-btn-cancel { background: var(--bg-darker); color: var(--text-muted); }
+
+/* Tip Jar */
+.tip-badges-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+}
+
+.tip-badge-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tip-badge-top .tip-badge-name { color: #f87171; }
+
+.tip-badge-icon { font-size: 18px; width: 26px; text-align: center; }
+
+.tip-badge-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tip-badge-req {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.tip-item-top { border-color: rgba(248,113,113,.35) !important; }
+
+/* Badge de donación en perfil */
+.donation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(248,113,113,.12);
+    border: 1px solid rgba(248,113,113,.3);
+    color: #f87171;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* Badge de racha de lectura (check-in diario) en perfil */
+.streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 159, 67, .12);
+    border: 1px solid rgba(255, 159, 67, .35);
+    color: #ff9f43;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* SCREEN: PROFILE */
+.profile-header {
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 24px;
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+/* La vista invitado no tiene franja de banner (no aplica sin cuenta), asi que necesita su
+   propio padding en vez del que ahora vive en .profile-header-body. */
+#profile-guest-view {
+    padding: 10px 16px 24px 16px;
+}
+
+/* Franja de banner ancha (no un cuadrado): altura fija, como un banner de verdad. Sin foto
+   propia usa un degradado -asi la forma de "banner" se ve siempre, no solo cuando hay foto. */
+.profile-banner-strip {
+    height: 120px;
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-darker));
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Todo el contenido (avatar, nombre, badges, bio) vive DEBAJO de la franja del banner, con el
+   fondo normal de la app -antes quedaba encima de la foto y se veia como una caja fea flotando
+   sobre la imagen. El avatar se superpone al borde inferior del banner (estilo Twitter/X). */
+.profile-header-body {
+    padding: 0 16px 20px 16px;
+    background: var(--bg-dark);
+}
+
+.profile-avatar-overlap {
+    margin-top: -43px;
+}
+
+.profile-big-avatar {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-dark);
+    overflow: hidden;
+    margin: 0 auto 12px auto;
+    transition: all 0.3s ease;
+    background: var(--bg-card);
+}
+
+.profile-big-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.profile-header h3 {
+    font-family: var(--font-heading);
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.user-tier {
+    font-size: 13px;
+    background: rgba(157, 78, 221, 0.1);
+    padding: 4px 12px;
+    border-radius: 30px;
+    color: var(--gem-color);
+    font-weight: 600;
+}
+
+.vip-badge {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12.5px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.05));
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    padding: 4px 12px;
+    border-radius: 30px;
+    color: #d4af37;
+    font-weight: 700;
+}
+
+.btn-login-cta, .btn-logout-cta {
+    margin: 16px auto 0 auto;
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-logout-cta {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+/* Bio como texto suelto, sin caja -antes era una caja oscura siempre editable, ahora solo se
+   lee acá; se edita desde el panel del lápiz (.profile-edit-panel) junto con foto y banner. */
+.profile-bio-display {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    text-align: center;
+}
+
+.profile-edit-toggle-btn {
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.profile-edit-toggle-btn:active {
+    transform: scale(0.95);
+    border-color: var(--primary);
+}
+
+.profile-edit-panel {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 14px;
+    animation: fadeInUp 0.3s ease-out both;
+}
+
+.profile-edit-panel textarea {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    padding: 10px 12px;
+    resize: none;
+}
+
+.btn-bio-save {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.profile-avatar-change-warning {
+    margin-top: 12px;
+    background: rgba(230, 57, 70, 0.12);
+    border: 1px solid rgba(230, 57, 70, 0.4);
+    color: #ff6b61;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 10px;
+}
+
+/* Campanita de notificaciones en el header */
+.header-bell {
+    position: relative;
+    font-size: 18px;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.header-bell-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: #e63946;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+}
+
+.header-notifications-panel {
+    position: absolute;
+    top: 60px;
+    right: 16px;
+    width: 300px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 14px;
+    z-index: 200;
+    box-shadow: var(--glow-primary), 0 8px 24px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+    transform-origin: top right;
+    pointer-events: none;
+    transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.header-notifications-panel.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Flechita que conecta el panel con la campana que lo abrió -antes quedaba flotando sin
+   relación visual con su propio disparador, como si fuera un elemento aparte de la app. */
+.header-notifications-panel::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 54px;
+    width: 12px;
+    height: 12px;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    border-radius: 3px 0 0 0;
+    transform: rotate(45deg);
+}
+
+/* El scroll vive en la lista, no en el panel entero -si no, la flechita de arriba (que
+   sobresale del borde superior) quedaría cortada por el overflow. */
+#notifications-list-panel {
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+.header-notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.header-notifications-header h4 {
+    font-size: 15px;
+    position: relative;
+    padding-left: 12px;
+}
+
+.header-notifications-header h4::before {
+    /* Mismo acento vertical que .section-header h3, para que el panel se sienta parte de la
+       misma app y no un componente aparte. */
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 1px;
+    bottom: 1px;
+    width: 3px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--primary), var(--gem-color));
+}
+
+.header-notifications-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-notifications-icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: color var(--transition-fast);
+}
+
+.header-notifications-icon-btn:active {
+    color: var(--text-main);
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 10px 10px 13px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-bottom: 8px;
+    background: var(--bg-darker);
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+    animation: fadeInUp 0.3s ease-out both;
+}
+
+.notification-item:last-child {
+    margin-bottom: 0;
+}
+
+.notification-item:hover {
+    background: var(--bg-card);
+}
+
+.notification-item.unread {
+    border-left-color: var(--primary);
+}
+
+.notification-item-icon {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(157, 78, 221, 0.15);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+/* Color por tipo -antes todos los iconos eran violeta plano, sin distinguir un capitulo nuevo
+   de un rechazo de moderacion de un vistazo. */
+.notification-item-icon.type-comment_reply {
+    background: rgba(199, 125, 255, 0.15);
+    color: var(--gem-color);
+}
+
+.notification-item-icon.type-gallery_approved {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--success);
+}
+
+.notification-item-icon.type-gallery_rejected,
+.notification-item-icon.type-comment_deleted {
+    background: rgba(255, 107, 97, 0.15);
+    color: var(--danger);
+}
+
+.notification-item-icon.type-avatar_change_requested {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--rarity-epic);
+}
+
+.notification-item-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-item-msg {
+    /* Titulos de manga largos (o cualquier texto sin espacios) rompen la palabra en vez de
+       desbordar el panel de 300px de ancho. */
+    overflow-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.notification-item-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: block;
+}
+
+/* Mis Fotos */
+.my-photos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.my-photo-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 1;
+}
+
+.my-photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.my-photo-status {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: #fff;
+}
+
+.my-photo-status.pending { background: #d4af37; }
+.my-photo-status.approved { background: #3a0ca3; }
+.my-photo-status.rejected { background: #e63946; }
+
+/* Transacciones */
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.transaction-reason {
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.transaction-date {
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
+.transaction-delta {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.transaction-delta.positive { color: #4ade80; }
+.transaction-delta.negative { color: #ff6b61; }
+
+/* Sesiones activas */
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.session-item.is-current {
+    border-color: var(--primary);
+}
+
+.session-info {
+    font-size: 13px;
+}
+
+.session-current-tag {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 11.5px;
+}
+
+/* Eliminar cuenta */
+.delete-account-warning {
+    background: rgba(230, 57, 70, 0.1);
+    border: 1px solid rgba(230, 57, 70, 0.35);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.setting-item-danger h4 {
+    color: #ff6b61;
+}
+
+/* SCREEN: LOGIN */
+.login-box {
+    max-width: 320px;
+    margin: 30px auto 0;
+    text-align: center;
+    animation: fadeInUp 0.45s ease-out both;
+}
+
+.login-logo {
+    font-size: 40px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 12px rgba(157, 78, 221, 0.5));
+    margin-bottom: 14px;
+    animation: loginLogoBreathe 3s ease-in-out infinite;
+}
+
+@keyframes loginLogoBreathe {
+    0%, 100% { filter: drop-shadow(0 0 12px rgba(157, 78, 221, 0.5)); }
+    50% { filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.8)); }
+}
+
+.login-box h2 {
+    font-family: var(--font-heading);
+    font-size: 23px;
+    margin-bottom: 6px;
+}
+
+.login-sub {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 22px;
+    line-height: 1.5;
+}
+
+.login-error {
+    background: rgba(225, 29, 72, 0.12);
+    border: 1px solid rgba(225, 29, 72, 0.35);
+    color: #ff8fa3;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    text-align: left;
+    animation: loginErrorShake 0.4s ease-out;
+}
+
+@keyframes loginErrorShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
+}
+
+.login-box .form-group {
+    text-align: left;
+}
+
+.forgot-password-link {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-block;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.forgot-password-link:active {
+    opacity: 0.7;
+    border-bottom-color: var(--primary);
+}
+
+.btn-login-submit {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.settings-group {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-recent-section {
+    margin-bottom: 24px;
+}
+
+.profile-recent-section .settings-group {
+    margin-bottom: 10px;
+}
+
+.profile-medals-section {
+    margin-bottom: 24px;
+}
+
+.profile-medals-section .settings-group {
+    margin-bottom: 10px;
+}
+
+.profile-medals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.profile-medal-badge {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    animation: fadeInUp 0.35s ease-out both;
+}
+
+.profile-medal-icon {
+    font-size: 26px;
+}
+
+.profile-medal-label {
+    font-size: 11.5px;
+    font-weight: 700;
+}
+
+.profile-medal-season {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.profile-medal-badge.medal-podium {
+    border-color: var(--rarity-epic);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+}
+
+.recent-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.recent-row .cover-wrap {
+    position: relative;
+    display: block;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.recent-row img {
+    width: 42px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+/* NSFW blur compartido por las portadas chicas de "Continuar leyendo"/"Últimas actualizaciones"/
+   "Últimos leídos" -mismo criterio que .manga-cover (biblioteca) y .manga-detail-cover (ficha),
+   pero con un overlay mas chico (sin el texto "Censurado", no entra en 110px/42px de ancho). */
+.cover-wrap img.blurred {
+    filter: blur(14px);
+}
+
+.nsfw-overlay-mini {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 15px;
+}
+
+.cover-wrap img.blurred + .nsfw-overlay-mini {
+    display: flex;
+}
+
+.recent-row-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.recent-row-title {
+    display: block;
+    font-size: 14.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recent-row-chapter {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.setting-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.setting-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.setting-info i {
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.setting-info h4 {
+    font-size: 15.5px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.setting-info p {
+    font-size: 12.5px;
+    color: var(--text-muted);
+}
+
+/* SWITCH TOGGLE */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-darker);
+    transition: .4s;
+    border: 1px solid var(--border-color);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-muted);
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--primary);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+    background-color: #fff;
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* SCREEN: MANGA DETAILS */
+.back-nav {
+    font-size: 14.5px;
+    color: var(--primary);
+    cursor: pointer;
+    margin-bottom: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.manga-detail-header {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.manga-detail-cover {
+    width: 120px;
+    height: 175px;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+    /* Fondo solido de respaldo mientras la imagen carga -antes quedaba un hueco totalmente
+       vacio/transparente por un instante en conexiones lentas. */
+    background: var(--bg-card);
+    box-shadow: var(--glow-primary);
+    animation: fadeInUp 0.45s ease-out both;
+}
+
+.manga-detail-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.manga-detail-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+    animation: fadeInUp 0.45s ease-out 0.08s both;
+}
+
+.manga-detail-meta h2 {
+    font-family: var(--font-heading);
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.tag-status {
+    background: rgba(157, 78, 221, 0.15);
+    color: var(--gem-color);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 30px;
+    display: inline-block;
+    margin-bottom: 12px;
+    width: fit-content;
+}
+
+#detail-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    /* Antes crecia sin limite -una sinopsis larga empujaba todo el resto de la ficha varios
+       scrolls hacia abajo. 6 lineas alcanza para dar una idea completa sin desbordar. */
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Detail screen metadata grid + rating */
+.detail-meta-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 12px 0 14px;
+    font-size: 13.5px;
+}
+
+.detail-meta-grid .meta-label {
+    color: var(--text-muted);
+    margin-right: 4px;
+}
+
+.detail-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.btn-continue-reading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 0;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 14px;
+    cursor: pointer;
+}
+
+.detail-stars {
+    color: #ffc94d;
+    font-size: 15px;
+    display: flex;
+    gap: 2px;
+}
+
+.detail-views {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.detail-share-btn {
+    margin-left: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color var(--transition-base), color var(--transition-base);
+}
+
+.detail-share-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.list-status-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    touch-action: pan-x pan-y;
+    margin-bottom: 14px;
+    padding-bottom: 2px;
+    /* Hay 5 chips pero solo entran ~3 en pantalla; sin esto el último se corta a la mitad
+       y parece roto. El degradado avisa que hay más para deslizar. */
+    mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+}
+
+.detail-desc-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+
+.list-status-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.list-status-chip.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.chapters-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chapters-list-header h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+}
+
+.btn-order-toggle {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chapter-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color var(--transition-fast), background var(--transition-fast);
+    animation: fadeInUp 0.35s ease-out both;
+}
+
+.chapter-row:active {
+    transform: scale(0.97);
+}
+
+.chapter-row:hover {
+    border-color: var(--primary);
+    background: var(--bg-surface);
+}
+
+.chapter-left-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.chapter-number {
+    font-size: 15.5px;
+    font-weight: 700;
+}
+
+.chapter-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.chapter-row-arrow {
+    color: var(--text-muted);
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+/* SCREEN: MANGA DETAILS - COMMENTS */
+.comments-section {
+    margin-top: 28px;
+    padding-top: 4px;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.comment-form textarea {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 15px;
+    padding: 10px 12px;
+    resize: none;
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-attach-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.comment-attach-preview:empty {
+    display: none;
+}
+
+.attach-preview-item {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+.attach-preview-item img,
+.attach-preview-item video {
+    max-height: 110px;
+    max-width: 160px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    object-fit: cover;
+}
+
+.attach-remove-btn {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-comment-submit {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0 16px;
+    height: 32px;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.comment-attachment {
+    max-width: 100%;
+    max-height: 280px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.comment-login-cta {
+    text-align: center;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-color);
+    color: var(--text-muted);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14.5px;
+    margin-bottom: 16px;
+    cursor: pointer;
+}
+
+.comment-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+
+.comment-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.comment-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-avatar-fallback {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.comment-username {
+    font-weight: 700;
+    font-size: 14.5px;
+    color: var(--text-main);
+}
+
+
+.comment-date {
+    font-size: 12.5px;
+    color: var(--text-muted);
+}
+
+.comment-content {
+    font-size: 14.5px;
+    color: var(--text-main);
+    line-height: 1.4;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.comment-vote-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.comment-vote-btn.active {
+    color: var(--primary);
+}
+
+.comment-reply-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    cursor: pointer;
+}
+
+.comment-report-btn, .comment-delete-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.comment-delete-btn {
+    color: #ff6b61;
+}
+
+.btn-gallery-report {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.comment-replies {
+    margin-top: 10px;
+    margin-left: 18px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border-color);
+}
+
+.comment-reply-form {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.comment-reply-form.active {
+    display: flex;
+}
+
+.comment-reply-form textarea {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 8px 10px;
+    resize: none;
+}
+
+/* SCREEN: READER */
+#screen-reader {
+    /* position:fixed (no absolute): el contenedor de pantallas (.app-content) hace scroll
+       y tiene position:relative, asi que un overlay "absolute" se desplazaba junto con ese
+       scroll y dejaba ver la ficha de la obra debajo. "fixed" lo ancla a la pantalla real,
+       cubriendo tambien el header y la barra de pestañas de abajo. */
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background: #000;
+    display: none;
+    flex-direction: column;
+}
+
+#screen-reader.active {
+    display: flex;
+    opacity: 1;
+}
+
+.reader-top-bar {
+    height: 52px;
+    background: rgba(8, 7, 15, 0.95);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--border-color);
+    position: absolute;
+    top: 36px;
+    left: 0;
+    width: 100%;
+    z-index: 5;
+    transition: transform 0.25s ease;
+}
+
+/* Se oculta al desplazar hacia abajo dentro del capitulo, reaparece al desplazar hacia arriba */
+.reader-top-bar.reader-bar-hidden {
+    /* La barra está en top:36px; translateY(-100%) sola no la saca del todo (deja ~36px
+       asomando). El buffer extra garantiza que se oculte por completo al desplazar. */
+    transform: translateY(calc(-100% - 60px));
+}
+
+.reader-back {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15.5px;
+}
+
+.reader-top-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Barra de progreso del capitulo, justo debajo de la barra superior. Se arrastra para
+   saltar a cualquier punto del scroll del capitulo (ver updateReaderProgressBar() en app.js).
+   Fondo oscuro tipo "pildora" + relleno de color hasta el progreso actual, para que se vea
+   clara sin importar que imagen del manga tenga detras (un track delgado sin fondo se perdia
+   de vista contra paginas claras). */
+.reader-progress-bar {
+    --reader-progress: 0%;
+    position: absolute;
+    top: 94px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+    height: 22px;
+    margin: 0;
+    z-index: 4;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 0 6px;
+    transition: opacity 0.25s ease;
+}
+
+.reader-progress-bar.reader-bar-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.reader-progress-bar::-webkit-slider-runnable-track {
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(to right,
+        var(--primary) var(--reader-progress),
+        rgba(255, 255, 255, 0.25) var(--reader-progress));
+}
+
+.reader-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--primary);
+    margin-top: -6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Overlay de brillo: capa negra semitransparente independiente del brillo del sistema.
+   pointer-events:none para no bloquear los toques de tap-to-scroll/zoom debajo. */
+.reader-brightness-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Filtro nocturno: tinte cálido y menos contraste para leer sin cansar la vista */
+.reader-night-filter #reader-images-wrap {
+    filter: sepia(0.35) saturate(0.85) brightness(0.92);
+}
+
+.reader-autoscroll-btn {
+    position: absolute;
+    right: 18px;
+    bottom: 66px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 6;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.reader-autoscroll-btn.playing {
+    animation: autoScrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes autoScrollPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+.reader-options-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.reader-options-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.reader-options-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-color);
+    border-radius: 18px 18px 0 0;
+    padding: 18px 20px 26px;
+    z-index: 10;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+}
+
+.reader-options-panel.active {
+    transform: translateY(0);
+}
+
+.reader-options-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.reader-options-header h3 {
+    font-family: var(--font-heading);
+    font-size: 17px;
+}
+
+.reader-options-header i {
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 18px;
+}
+
+.reader-option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+}
+
+.reader-option-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.reader-option-label i {
+    color: var(--primary);
+    width: 18px;
+    text-align: center;
+}
+
+.reader-option-row input[type="range"] {
+    flex: 1;
+    max-width: 160px;
+}
+
+.reader-options-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+.reader-page-zoomed {
+    transform: scale(2);
+    transition: transform 0.2s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.reader-pages {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 88px;
+    padding-bottom: 50px;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+}
+
+.reader-pages img {
+    width: 100%;
+    display: block;
+}
+
+#reader-images-wrap {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    /* Sin esto, el min-height:100% anula la proteccion automatica de flexbox
+       (min-height:auto) que evita encoger un item por debajo de su contenido.
+       El navegador comprimia esta caja al alto de pantalla aunque las paginas
+       reales midieran mucho mas, y el desborde se pintaba encima de los
+       comentarios del capitulo. */
+    flex-shrink: 0;
+}
+
+/* Fade al cargar cada pagina (fase 1 del rediseño, 2026-07-02) -antes las imagenes
+   aparecian de golpe apenas terminaban de descargar. Selector cubre tanto el modo tira
+   continua (#reader-images-wrap img sueltas) como el modo paginado (.reader-page-single,
+   que tambien es un <img> dentro del mismo contenedor) - en ambos modos el JS de
+   renderStripPages/renderPaginatedPage dispara la clase .loaded en el onload del <img>. */
+#reader-images-wrap img {
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+#reader-images-wrap img.loaded {
+    opacity: 1;
+}
+
+/* Comentarios del capitulo: se desplazan junto con las paginas, al final de la tira */
+.reader-comments-section {
+    padding: 22px 18px 40px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 12px;
+}
+
+/* Reader ad insertion mockup */
+.reader-in-page-ad {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    text-align: center;
+    margin: 20px 12px;
+    border-radius: 14px;
+}
+
+.reader-in-page-ad p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.ad-banner-mock {
+    background: #0c0b16;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px dashed rgba(157, 78, 221, 0.25);
+}
+
+.reader-broken-page {
+    background: var(--bg-card);
+    border: 1px solid rgba(225, 29, 72, 0.35);
+    padding: 28px 20px;
+    text-align: center;
+    margin: 8px 12px;
+    border-radius: 14px;
+}
+
+.reader-broken-page i {
+    font-size: 26px;
+    color: #ff8fa3;
+    margin-bottom: 10px;
+}
+
+.reader-broken-page p {
+    font-size: 13.5px;
+    margin: 4px 0;
+}
+
+.reader-broken-page-hint {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.reader-bottom-nav {
+    height: 46px;
+    background: rgba(8, 7, 15, 0.95);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 14px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: height 0.25s ease, padding 0.25s ease, opacity 0.2s ease, border-width 0.25s ease;
+}
+
+/* Se oculta al desplazar hacia abajo dentro del capitulo, reaparece al desplazar hacia arriba */
+.reader-bottom-nav.reader-bar-hidden {
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    border-top-width: 0;
+}
+
+.reader-bottom-nav span:not(.reader-page-indicator) {
+    cursor: pointer;
+    color: var(--text-main);
+    font-weight: 600;
+    padding: 6px 10px;
+}
+
+.reader-bottom-nav span.disabled {
+    color: var(--text-muted);
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: default;
+}
+
+.reader-page-view {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reader-page-single {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* SCREEN: ADMIN */
+.admin-module {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.4s ease-out both;
+}
+
+.admin-module h3 {
+    font-family: var(--font-heading);
+    font-size: 16.5px;
+    margin-bottom: 14px;
+    color: var(--primary);
+}
+
+.admin-approval-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-approval-card {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.admin-approval-card img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.admin-approval-info {
+    flex: 1;
+}
+
+.admin-approval-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-approval-info p {
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
+.admin-card-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-admin-act {
+    border: none;
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.btn-admin-act.approve {
+    background: #3a0ca3;
+}
+
+.btn-admin-act.reject {
+    background: #e63946;
+}
+
+.admin-upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+/* Panel de Staff: Usuarios (suspensiones) y Reportes de contenido -misma linea visual que
+   .admin-approval-card, adaptada a filas de texto en vez de fotos. */
+.admin-user-row, .admin-report-row {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-user-info, .admin-report-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.admin-user-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.admin-user-staff-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    background: rgba(157, 78, 221, 0.2);
+    color: var(--primary);
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+
+.admin-user-banned {
+    font-size: 12px;
+    color: #ff6b61;
+    font-weight: 600;
+}
+
+.admin-user-vip {
+    font-size: 12px;
+    color: var(--rarity-epic);
+    font-weight: 600;
+}
+
+.admin-report-reason {
+    font-size: 12px;
+    color: var(--text-main);
+    font-style: italic;
+}
+
+.admin-user-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.admin-ban-select {
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+.btn-admin-submit.btn-admin-ban {
+    background: #e63946;
+}
+
+.btn-admin-submit.btn-admin-unban {
+    background: #3a0ca3;
+}
+
+.btn-admin-submit.btn-admin-vip {
+    background: var(--rarity-epic);
+    color: #1a1420;
+}
+
+.admin-reports-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.admin-reports-tab {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-reports-tab.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.admin-reports-count {
+    font-size: 13px;
+    color: #ff6b61;
+    font-weight: 700;
+}
+
+.admin-submodule-title {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 18px 0 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.admin-gacha-current {
+    font-size: 13.5px;
+    margin-bottom: 14px;
+}
+
+.admin-gacha-cards-list,
+.admin-gacha-completions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-bulk-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.admin-gacha-card-row {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.admin-gacha-card-row img {
+    width: 56px;
+    height: 74px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.admin-gacha-card-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.admin-gacha-card-fields .admin-input {
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+.admin-gacha-card-row .admin-card-buttons {
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.gacha-reveal-manga {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.admin-input {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: var(--text-main);
+    font-size: 14.5px;
+    outline: none;
+}
+
+.admin-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
+.btn-admin-submit {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* MODALS STYLING */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 330px;
+    padding: 26px;
+}
+
+.modal-content h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    margin-bottom: 8px;
+}
+
+.modal-sub {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.form-group input, .form-select {
+    width: 100%;
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: 10px;
+    color: var(--text-main);
+    font-size: 14.5px;
+    outline: none;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-modal-cancel {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-modal-submit {
+    flex: 1;
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* AD MODAL STYLING */
+.ad-content-box {
+    background: #0b0a13;
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    width: 100%;
+    max-width: 310px;
+    padding: 28px;
+    text-align: center;
+}
+
+.force-update-box h3 {
+    font-size: 19px;
+    margin: 14px 0 8px;
+}
+
+.force-update-box p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.force-update-icon {
+    font-size: 38px;
+    color: var(--primary);
+}
+
+.force-update-download-btn {
+    text-decoration: none;
+}
+
+.ad-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+}
+
+.ad-timer {
+    background: rgba(255,255,255,0.05);
+    padding: 3px 10px;
+    border-radius: 6px;
+    color: var(--gem-color);
+    font-weight: bold;
+}
+
+.ad-body i {
+    font-size: 64px;
+    color: var(--primary);
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px rgba(157, 78, 221, 0.4));
+}
+
+.ad-body h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    margin-bottom: 10px;
+}
+
+.ad-body p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.4;
+}
+
+.exoclick-rewarded-video {
+    width: 100%;
+    max-height: 60vh;
+    border-radius: 14px;
+    background: #000;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    transition: width 0.1s linear;
+}
+
+/* Animations */
+.animate-pulse {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* MOBILE FIRST RESPONSIVE BEHAVIOR */
+@media (max-width: 768px) {
+    body {
+        background-color: var(--bg-darker);
+    }
+    .mockup-container {
+        padding: 0;
+        gap: 0;
+    }
+    .control-panel {
+        display: none;
+    }
+    .smartphone-frame {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .android-status-bar {
+        /* Era para la maqueta de escritorio; en el celular real ya existe la barra de estado
+           verdadera de Android, esta solo duplicaba el reloj/iconos debajo de la real. */
+        display: none;
+    }
+    .notch {
+        display: none;
+    }
+    /* El "top:36px" de .reader-top-bar y los 0 de .reader-bottom-nav estaban calibrados para
+       la maqueta de escritorio (con su barra de estado falsa de 36px). En el celular real, esa
+       barra falsa esta oculta arriba y en su lugar hay que respetar la barra de estado/gestos
+       de verdad, que varia por modelo - de ahi las variables --safe-top/--safe-bottom medidas
+       en MainActivity.java. */
+    .reader-top-bar {
+        top: var(--safe-top);
+    }
+    .reader-bottom-nav {
+        padding-bottom: calc(10px + var(--safe-bottom));
+        height: calc(46px + var(--safe-bottom));
+    }
+}

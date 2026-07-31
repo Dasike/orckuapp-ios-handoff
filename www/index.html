@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>OrckuMangas - App Mockup Demo</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Container to host the phone frame on desktop -->
+    <div class="mockup-container">
+        
+        <!-- Interactive Control Panel (on the left/right of the phone on desktop) -->
+        <div class="control-panel">
+            <div class="brand-logo">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <h2>OrckuMangas <span>App</span></h2>
+            </div>
+            <p class="panel-desc">Estrategia técnica para el Scan: Costo de servidores $0, distribución directa en APK (sin censura de Google Play) y monetización directa.</p>
+            
+            <div class="control-group">
+                <h3>Controles de la Demo:</h3>
+                <button id="btn-toggle-admin" class="btn-control">
+                    <i class="fa-solid fa-user-shield"></i> Modo Administrador: <span id="admin-status">OFF</span>
+                </button>
+                <div class="info-card">
+                    <h4>🔮 Funciones de la Maqueta:</h4>
+                    <ul>
+                        <li><strong>Runas (Monedas):</strong> Moneda virtual del Scan para desbloquear contenido y cosméticos.</li>
+                        <li><strong>Tienda Interactiva:</strong> ¡Compra marcos para tu avatar con tus Runas y mira cómo cambia tu perfil al instante!</li>
+                        <li><strong>Censura NSFW:</strong> Activa o desactiva el filtro en "Perfil" para tapar/destapar las portadas para adultos.</li>
+                        <li><strong>Imágenes Reales:</strong> Se implementaron las ilustraciones que subiste para las portadas y galería.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Android Device Frame -->
+        <div class="smartphone-frame">
+            <div class="phone-screen">
+                
+                <!-- Android Status Bar -->
+                <div class="android-status-bar">
+                    <span class="time" id="clock">12:00</span>
+                    <div class="icons">
+                        <i class="fa-solid fa-wifi"></i>
+                        <i class="fa-solid fa-signal"></i>
+                        <i class="fa-solid fa-battery-three-quarters"></i>
+                    </div>
+                </div>
+
+                <!-- App Header -->
+                <header class="app-header">
+                    <div class="header-left">
+                        <span class="app-logo"><i class="fa-solid fa-hat-wizard"></i> OrckuApp</span>
+                    </div>
+                    <div class="header-right">
+                        <div class="wallet-badge" id="open-wallet-btn">
+                            <i class="fa-solid fa-gem icon-gem"></i>
+                            <span id="coins-count">25</span>
+                        </div>
+                        <div class="header-bell" id="header-bell-btn" onclick="toggleNotificationsPanel()">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="header-bell-badge" id="header-bell-badge" style="display:none;">0</span>
+                        </div>
+                        <div class="avatar-frame-wrap" id="header-avatar-wrap" onclick="toggleHeaderProfilePopover()">
+                            <div class="profile-avatar" id="header-avatar-container">
+                                <img src="images/media_chibi.jpg" alt="Avatar" id="user-avatar">
+                            </div>
+                            <img class="avatar-frame-overlay" id="user-avatar-frame" src="" alt="" style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="header-notifications-panel" id="header-notifications-panel">
+                        <div class="header-notifications-header">
+                            <h4>Notificaciones</h4>
+                            <div class="header-notifications-header-actions">
+                                <button class="header-notifications-icon-btn" onclick="markAllNotificationsRead()" aria-label="Marcar todo leído"><i class="fa-solid fa-check-double"></i></button>
+                                <button class="header-notifications-icon-btn" onclick="clearReadNotifications()" aria-label="Borrar leídas"><i class="fa-solid fa-broom"></i></button>
+                                <button class="header-notifications-icon-btn" onclick="closeNotificationsPanel()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        <div id="notifications-list-panel">
+                            <p class="empty-grid-msg">Inicia sesión para ver tus notificaciones.</p>
+                        </div>
+                    </div>
+
+                    <div class="header-profile-popover" id="header-profile-popover">
+                        <div class="header-popover-avatar-row">
+                            <img id="popover-avatar-img" src="images/media_chibi.jpg" alt="Avatar">
+                            <div>
+                                <h4 id="popover-username">—</h4>
+                                <span class="user-tier-mini" id="popover-role-badge">Lector</span>
+                            </div>
+                        </div>
+                        <div class="header-popover-vip" id="popover-vip-row" style="display:none;">
+                            <i class="fa-solid fa-crown"></i> <span id="popover-vip-text"></span>
+                        </div>
+                        <div class="header-popover-stat">
+                            <i class="fa-solid fa-book-open"></i> <span id="popover-chapters-read">0</span> capítulos leídos
+                        </div>
+                        <button class="header-popover-btn" onclick="goToProfileFromPopover()">
+                            Ver perfil completo <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- App Main Content Area -->
+                <main class="app-content">
+                    
+                    <!-- SCREEN: HOME / CATALOG -->
+                    <section id="screen-home" class="app-screen active">
+                        <div class="search-bar-container">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search-input" placeholder="Buscar obras en el Scan..." oninput="debounceFilterHomeGrid()" onblur="hideSearchDropdownDelayed()">
+                            <div class="search-dropdown" id="search-dropdown"></div>
+                        </div>
+
+                        <div class="genre-chips-row" id="genre-chips-row">
+                            <button class="genre-chip active" onclick="setGenreFilter('all', this)">Todos</button>
+                            <button class="genre-chip" onclick="setGenreFilter('comedy', this)">Comedia</button>
+                            <button class="genre-chip" onclick="setGenreFilter('romance', this)">Romance</button>
+                            <button class="genre-chip" onclick="setGenreFilter('drama', this)">Drama</button>
+                            <button class="genre-chip" onclick="setGenreFilter('adult', this)">+18</button>
+                            <button class="genre-chip" onclick="setGenreFilter('favorites', this)"><i class="fa-solid fa-heart"></i> Favoritos</button>
+                        </div>
+
+                        <div class="gacha-home-banner" id="gacha-home-banner" onclick="goToGachaFromBanner()" style="display:none;">
+                            <div class="gacha-home-banner-icon"><i class="fa-solid fa-dice-d6"></i></div>
+                            <div class="gacha-home-banner-text">
+                                <span class="gacha-home-banner-tag">GACHA</span>
+                                <h3 id="gacha-home-banner-title">—</h3>
+                                <p id="gacha-home-banner-subtitle"></p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right gacha-home-banner-arrow"></i>
+                        </div>
+
+                        <div class="continue-reading-section" id="continue-reading-section" style="display:none;">
+                            <div class="section-header">
+                                <h3>Seguir leyendo</h3>
+                            </div>
+                            <div class="continue-reading-row" id="continue-reading-row"></div>
+                        </div>
+
+                        <div class="continue-reading-section" id="latest-updates-section" style="display:none;">
+                            <div class="section-header">
+                                <h3>Últimas Actualizaciones</h3>
+                            </div>
+                            <div class="continue-reading-row" id="latest-updates-row"></div>
+                        </div>
+
+                        <div class="manga-section">
+                            <div class="section-header">
+                                <h3>Biblioteca General</h3>
+                            </div>
+                            <div class="manga-grid" id="manga-grid-container">
+                                <!-- Manga Card 1 -->
+                                <div class="manga-card" data-genre="comedy" data-id="chibi" data-title="Mi Chibi Ayudante" onclick="openMangaDetails('chibi')">
+                                    <div class="manga-cover">
+                                        <img src="images/media_chibi.jpg" alt="Mi Chibi Ayudante">
+                                        <button class="fav-heart-btn" data-fav-id="chibi" onclick="toggleFavorite(event, 'chibi')"><i class="fa-regular fa-heart"></i></button>
+                                        <span class="manga-badge update">Cap. 3</span>
+                                        <span class="views-badge"><i class="fa-solid fa-eye"></i> 8.4K</span>
+                                    </div>
+                                    <h4>Mi Chibi Ayudante</h4>
+                                    <span class="manga-chapters">3 Capítulos</span>
+                                </div>
+
+                                <!-- Manga Card 2 (NSFW / Adulto) -->
+                                <div class="manga-card adult-content" data-genre="adult" data-id="sweet-secrets" data-title="Sweet Secrets" onclick="openMangaDetails('sweet-secrets')">
+                                    <div class="manga-cover">
+                                        <img src="images/media_mature.jpg" alt="Sweet Secrets" class="adult-img">
+                                        <button class="fav-heart-btn" data-fav-id="sweet-secrets" onclick="toggleFavorite(event, 'sweet-secrets')"><i class="fa-regular fa-heart"></i></button>
+                                        <div class="nsfw-overlay"><i class="fa-solid fa-eye-slash"></i> +18 Censurado</div>
+                                        <span class="manga-badge adult-badge">Adulto</span>
+                                        <span class="views-badge"><i class="fa-solid fa-eye"></i> 12.1K</span>
+                                    </div>
+                                    <h4>Sweet Secrets</h4>
+                                    <span class="manga-chapters">12 Capítulos</span>
+                                </div>
+
+                                <!-- Manga Card 3 -->
+                                <div class="manga-card" data-genre="drama" data-id="secretaria-medianoche" data-title="Secretaria de Medianoche" onclick="openMangaDetails('secretaria-medianoche')">
+                                    <div class="manga-cover">
+                                        <img src="images/07240e93de3cb9febe3848ba710665fd.jpg" alt="Secretaria de Medianoche">
+                                        <button class="fav-heart-btn" data-fav-id="secretaria-medianoche" onclick="toggleFavorite(event, 'secretaria-medianoche')"><i class="fa-regular fa-heart"></i></button>
+                                        <span class="manga-badge update">Nuevo</span>
+                                        <span class="views-badge"><i class="fa-solid fa-eye"></i> 6.7K</span>
+                                    </div>
+                                    <h4>Secretaria de Medianoche</h4>
+                                    <span class="manga-chapters">8 Capítulos</span>
+                                </div>
+
+                                <!-- Manga Card 4 -->
+                                <div class="manga-card" data-genre="drama" data-id="ojos-carmesi" data-title="Ojos Carmesí" onclick="openMangaDetails('ojos-carmesi')">
+                                    <div class="manga-cover">
+                                        <img src="images/19cfefbd4fda8226423069eb97211947.jpg" alt="Ojos Carmesí">
+                                        <button class="fav-heart-btn" data-fav-id="ojos-carmesi" onclick="toggleFavorite(event, 'ojos-carmesi')"><i class="fa-regular fa-heart"></i></button>
+                                        <span class="views-badge"><i class="fa-solid fa-eye"></i> 9.9K</span>
+                                    </div>
+                                    <h4>Ojos Carmesí</h4>
+                                    <span class="manga-chapters">21 Capítulos</span>
+                                </div>
+
+                                <!-- Manga Card 5 -->
+                                <div class="manga-card" data-genre="drama" data-id="mala-costumbre" data-title="Mala Costumbre" onclick="openMangaDetails('mala-costumbre')">
+                                    <div class="manga-cover">
+                                        <img src="images/55ca6476c59c0a526b14b5b51b0c6526.jpg" alt="Mala Costumbre">
+                                        <button class="fav-heart-btn" data-fav-id="mala-costumbre" onclick="toggleFavorite(event, 'mala-costumbre')"><i class="fa-regular fa-heart"></i></button>
+                                        <span class="manga-badge update">Final</span>
+                                        <span class="views-badge"><i class="fa-solid fa-eye"></i> 15.3K</span>
+                                    </div>
+                                    <h4>Mala Costumbre</h4>
+                                    <span class="manga-chapters">34 Capítulos</span>
+                                </div>
+
+                                <!-- Manga Card 6 -->
+                                <div class="manga-card" data-genre="comedy" data-id="primavera-conmigo" data-title="Primavera Conmigo" onclick="openMangaDetails('primavera-conmigo')">
+                                    <div class="manga-cover">
+                                        <img src="images/84f91ff1286f8d31115374c076628f8e.jpg" alt="Primavera Conmigo">
+                                        <button class="fav-heart-btn" data-fav-id="primavera-conmigo" onclick="toggleFavorite(event, 'primavera-conmigo')"><i class="fa-regular fa-heart"></i></button>
+                                        <span class="manga-badge update">Nuevo</span>
+                                        <span class="views-badge"><i class="fa-solid fa-eye"></i> 5.2K</span>
+                                    </div>
+                                    <h4>Primavera Conmigo</h4>
+                                    <span class="manga-chapters">5 Capítulos</span>
+                                </div>
+
+                                <!-- Manga Card 7 -->
+                                <div class="manga-card" data-genre="romance" data-id="buenos-dias-jefa" data-title="Buenos Días, Jefa" onclick="openMangaDetails('buenos-dias-jefa')">
+                                    <div class="manga-cover">
+                                        <img src="images/0093c6ae80961d790d3d6178ffe9f11f.jpg" alt="Buenos Días, Jefa">
+                                        <button class="fav-heart-btn" data-fav-id="buenos-dias-jefa" onclick="toggleFavorite(event, 'buenos-dias-jefa')"><i class="fa-regular fa-heart"></i></button>
+                                        <span class="views-badge"><i class="fa-solid fa-eye"></i> 7.8K</span>
+                                    </div>
+                                    <h4>Buenos Días, Jefa</h4>
+                                    <span class="manga-chapters">14 Capítulos</span>
+                                </div>
+                            </div>
+                            <p id="grid-empty-msg" class="empty-grid-msg" style="display:none;">No se encontraron obras con ese filtro.</p>
+                            <button id="btn-load-more" class="btn-load-more" style="display:none;" onclick="loadMoreCatalog()">Cargar más</button>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: COMMUNITY GALLERY -->
+                    <section id="screen-gallery" class="app-screen">
+                        <div class="screen-header-title">
+                            <h2 id="gallery-header-title">Galería de la Comunidad</h2>
+                            <p id="gallery-header-sub">Ilustraciones y arte compartidos por el staff y los fans</p>
+                        </div>
+
+                        <div class="gallery-actions">
+                            <div class="gallery-tabs">
+                                <button class="gallery-tab active" id="gallery-view-tab-all" onclick="switchGalleryView('all')">Todos</button>
+                                <button class="gallery-tab" id="gallery-view-tab-admin" onclick="switchGalleryView('admin')">Staff</button>
+                                <button class="gallery-tab" id="gallery-view-tab-ugc" onclick="switchGalleryView('ugc')">Fans</button>
+                            </div>
+                            <button class="gallery-tab gallery-gacha-standalone" id="gallery-view-tab-gacha" onclick="switchGalleryView('gacha', this)">
+                                <i class="fa-solid fa-dice"></i> Gacha
+                            </button>
+                        </div>
+
+                        <div class="gallery-controls-row" id="gallery-controls-row">
+                            <div class="gallery-project-filter" id="gallery-project-filter" style="position:relative;">
+                                <input type="text" id="gallery-filter-manga-search" placeholder="Filtrar por manga/proyecto..." autocomplete="off" oninput="searchMangaForGalleryFilter(this.value)">
+                                <div class="search-dropdown" id="gallery-filter-manga-results"></div>
+                                <span class="gallery-filter-active-tag" id="gallery-filter-active-tag" style="display:none;">
+                                    <span id="gallery-filter-active-name"></span>
+                                    <i class="fa-solid fa-xmark" onclick="clearGalleryMangaFilter()"></i>
+                                </span>
+                            </div>
+                            <div class="gallery-sort-toggle">
+                                <button class="gallery-sort-btn active" id="gallery-sort-recent" onclick="setGallerySort('recent')">Recientes</button>
+                                <button class="gallery-sort-btn" id="gallery-sort-popular" onclick="setGallerySort('popular')">Populares</button>
+                            </div>
+                        </div>
+
+                        <div class="gallery-grid" id="gallery-grid-container">
+                            <p class="empty-grid-msg">Cargando galería...</p>
+                        </div>
+                        <button id="btn-gallery-load-more" class="btn-load-more" style="display:none;" onclick="loadMoreGalleryPhotos()">Cargar más</button>
+
+                        <!-- Álbum de gacha -->
+                        <div class="gacha-section" id="gacha-section" style="display:none;">
+                            <div id="gacha-no-season-box" class="gacha-no-season-box" style="display:none;">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                <p id="gacha-no-season-title">No hay ningún álbum activo en este momento.</p>
+                                <p id="gacha-no-season-subtitle" class="gacha-no-season-subtitle"></p>
+                            </div>
+
+                            <div id="gacha-content" style="display:none;">
+                                <div class="gacha-hero-card">
+                                    <div class="gacha-header">
+                                        <div>
+                                            <h3 id="gacha-season-name">—</h3>
+                                            <span class="gacha-season-dates" id="gacha-season-dates"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="gacha-pity-bar" id="gacha-pity-bar">
+                                        <div class="gacha-pity-bar-fill" id="gacha-pity-bar-fill"></div>
+                                        <span id="gacha-pity-bar-text">—</span>
+                                    </div>
+
+                                    <div class="gacha-pull-buttons">
+                                        <button class="btn-gacha-pull btn-gacha-pull-x" id="btn-gacha-pull-1" onclick="performGachaPull(1)">
+                                            Tirar x1 (<span id="gacha-pull-cost-1">10</span>)
+                                        </button>
+                                        <button class="btn-gacha-pull btn-gacha-pull-x" id="btn-gacha-pull-5" onclick="performGachaPull(5)">
+                                            x5 (<span id="gacha-pull-cost-5">50</span>)
+                                        </button>
+                                        <button class="btn-gacha-pull" id="btn-gacha-pull-10" onclick="performGachaPull(10)">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i> x10 (<span id="gacha-pull-cost-10">100</span>)
+                                        </button>
+                                    </div>
+
+                                    <p class="gacha-rewards-link" onclick="scrollToGachaRewards()">
+                                        🎁 Ver premios de la carrera (Nitro / VIP) <i class="fa-solid fa-arrow-down"></i>
+                                    </p>
+                                </div>
+
+                                <div class="gacha-section-block">
+                                    <h4 class="gacha-section-title"><i class="fa-solid fa-images"></i> Álbum de la temporada</h4>
+                                    <div class="gacha-progress">
+                                        <span id="gacha-progress-text">0 / 0 cartas</span>
+                                        <div class="gacha-progress-bar"><div class="gacha-progress-fill" id="gacha-progress-fill"></div></div>
+                                    </div>
+                                    <div class="gacha-album-grid" id="gacha-album-grid"></div>
+                                </div>
+
+                                <div class="gacha-rewards-box" id="gacha-rewards-box">
+                                    <h4><i class="fa-solid fa-gift"></i> Premios para los 3 más rápidos en completar el álbum</h4>
+                                    <div class="gacha-rewards-list" id="gacha-rewards-list"></div>
+                                </div>
+
+                                <div class="gacha-leaderboard">
+                                    <h4><i class="fa-solid fa-trophy"></i> Tabla de líderes</h4>
+                                    <div id="gacha-leaderboard-list" class="empty-grid-msg">Nadie ha completado el álbum todavía. ¡Sé el primero!</div>
+                                </div>
+
+                                <p class="gacha-rewards-link" onclick="openGachaArchive()">
+                                    <i class="fa-solid fa-box-archive"></i> Ver temporadas anteriores
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Archivo de temporadas pasadas: ver que cartas se sacaron en albumes ya cerrados -->
+                        <div class="gacha-archive-overlay" id="gacha-archive-overlay" onclick="closeGachaArchive()">
+                            <div class="gacha-archive-card" onclick="event.stopPropagation()">
+                                <div class="gacha-archive-header">
+                                    <h3>Temporadas anteriores</h3>
+                                    <button class="gacha-archive-close" onclick="closeGachaArchive()"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                                <div class="gacha-archive-body">
+                                    <div id="gacha-archive-list-view">
+                                        <div id="gacha-archive-list"></div>
+                                    </div>
+                                    <div id="gacha-archive-detail-view" style="display:none;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal de revelado de carta -->
+                        <div class="gacha-reveal-overlay" id="gacha-reveal-overlay" onclick="closeGachaReveal()">
+                            <div class="gacha-reveal-card" id="gacha-reveal-card" onclick="event.stopPropagation()">
+                                <div class="gacha-board-row" id="gacha-board-row" style="display:none;">
+                                    <p class="gacha-board-secured" id="gacha-board-secured">🔒 ¡Tirada asegurada!</p>
+                                    <div class="gacha-board-grid" id="gacha-board-grid">
+                                        <div class="gacha-board-token" id="gacha-board-token"><i class="fa-solid fa-dice-d20"></i></div>
+                                    </div>
+                                </div>
+                                <div class="gacha-fx-layer" id="gacha-fx-layer"></div>
+                                <img id="gacha-reveal-img" src="" alt="Carta">
+                                <div class="gacha-reveal-multi-grid" id="gacha-reveal-multi-grid" style="display:none;"></div>
+                                <h3 id="gacha-reveal-name"></h3>
+                                <p class="gacha-reveal-manga" id="gacha-reveal-manga" style="display:none;"></p>
+                                <span class="gacha-rarity-badge" id="gacha-reveal-rarity"></span>
+                                <p class="gacha-reveal-duplicate" id="gacha-reveal-duplicate" style="display:none;">Ya tenías esta carta (duplicada)</p>
+                                <button class="btn-gacha-reveal-close" onclick="closeGachaReveal()">Cerrar</button>
+                            </div>
+                        </div>
+
+                        <!-- Zoom de carta: click en cualquier miniatura del album o de un lote para verla grande -->
+                        <div class="gacha-card-zoom-overlay" id="gacha-card-zoom-overlay" onclick="closeGachaCardZoom()">
+                            <img id="gacha-card-zoom-img" src="" alt="Carta ampliada">
+                            <p id="gacha-card-zoom-caption"></p>
+                        </div>
+
+                        <!-- Boton flotante de subir, fuera del paso de los filtros/pestañas -->
+                        <button class="gallery-upload-fab" id="btn-upload-photo" onclick="openUploadModal()">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        </button>
+                    </section>
+
+                    <!-- SCREEN: STORE (TIENDA DE MARCOS Y RUNAS) -->
+                    <section id="screen-store" class="app-screen">
+                        <div class="screen-header-title">
+                            <h2>Tienda del Scan</h2>
+                            <p>Personaliza tu perfil y apoya a los traductores</p>
+                        </div>
+
+                        <div class="store-section">
+                            <div class="section-title-small"><i class="fa-solid fa-circle-dot"></i> Bordes de Avatar</div>
+                            <div class="frames-grid">
+                                <div class="store-item frame-item" id="item-frame-earendil" data-frame-id="earendil">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-preview frame-earendil-border">
+                                            <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                        </div>
+                                    </div>
+                                    <h4>Luz de Eärendil</h4>
+                                    <p>Resplandor élfiko de las estrellas</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('earendil', 15)">
+                                        <i class="fa-solid fa-gem"></i> 15 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item" id="item-frame-portador" data-frame-id="portador">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-preview frame-portador-border">
+                                            <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                        </div>
+                                    </div>
+                                    <h4>Marca del Portador</h4>
+                                    <p>El peso del Anillo Único</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('portador', 20)">
+                                        <i class="fa-solid fa-gem"></i> 20 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item" id="item-frame-muertos" data-frame-id="muertos">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-preview frame-muertos-border">
+                                            <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                        </div>
+                                    </div>
+                                    <h4>Niebla de los Muertos</h4>
+                                    <p>Espectros del Camino de los Difuntos</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('muertos', 20)">
+                                        <i class="fa-solid fa-gem"></i> 20 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item" id="item-frame-palantir" data-frame-id="palantir">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-preview frame-palantir-border">
+                                            <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                        </div>
+                                    </div>
+                                    <h4>Brillo del Palantír</h4>
+                                    <p>La Piedra Vidiente de Orthanc</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('palantir', 25)">
+                                        <i class="fa-solid fa-gem"></i> 25 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item" id="item-frame-sauron" data-frame-id="sauron">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-preview frame-sauron-border">
+                                            <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                        </div>
+                                    </div>
+                                    <h4>Ojo de Sauron</h4>
+                                    <p>La llama del Señor Oscuro</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('sauron', 25)">
+                                        <i class="fa-solid fa-gem"></i> 25 Runas
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="store-section">
+                            <div class="section-title-small"><i class="fa-solid fa-crown"></i> Marcos Premium (Tierra Media)</div>
+                            <div class="frames-grid">
+                                <div class="store-item frame-item" id="item-frame-barad" data-frame-id="barad">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-frame-wrap avatar-frame-wrap-preview">
+                                            <div class="avatar-preview avatar-preview-overlay">
+                                                <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                            </div>
+                                            <img class="avatar-frame-overlay frame-overlay-barad" src="images/frames/frame-barad.webp" alt="">
+                                        </div>
+                                    </div>
+                                    <h4>Anillo de Barad&#8209;dûr</h4>
+                                    <p>Hierro forjado de la Torre Oscura</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('barad', 40)">
+                                        <i class="fa-solid fa-gem"></i> 40 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item" id="item-frame-lorien" data-frame-id="lorien">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-frame-wrap avatar-frame-wrap-preview">
+                                            <div class="avatar-preview avatar-preview-overlay">
+                                                <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                            </div>
+                                            <img class="avatar-frame-overlay frame-overlay-lorien" src="images/frames/frame-lorien.webp" alt="">
+                                        </div>
+                                    </div>
+                                    <h4>Hojas de Lórien</h4>
+                                    <p>Enredadera élfica dorada y verde</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('lorien', 40)">
+                                        <i class="fa-solid fa-gem"></i> 40 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item" id="item-frame-concilio" data-frame-id="concilio">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-frame-wrap avatar-frame-wrap-preview">
+                                            <div class="avatar-preview avatar-preview-overlay">
+                                                <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                            </div>
+                                            <img class="avatar-frame-overlay frame-overlay-concilio" src="images/frames/frame-concilio.webp" alt="">
+                                        </div>
+                                    </div>
+                                    <h4>Las Réplicas del Concilio</h4>
+                                    <p>Reliquia desgastada de podios pasados</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('concilio', 40)">
+                                        <i class="fa-solid fa-gem"></i> 40 Runas
+                                    </button>
+                                </div>
+
+                                <!-- Exclusivo Patreon Tier 4: oculto salvo que ya se posea (ver renderExclusiveFrameCard en app.js) -->
+                                <div class="store-item frame-item-exclusive" id="item-frame-anor" style="display:none;">
+                                    <div class="frame-preview-box">
+                                        <div class="avatar-frame-wrap avatar-frame-wrap-preview">
+                                            <div class="avatar-preview avatar-preview-overlay">
+                                                <img class="frame-preview-img" src="images/media_chibi.jpg" alt="Preview">
+                                            </div>
+                                            <img class="avatar-frame-overlay frame-overlay-anor" src="images/frames/frame-anor.webp" alt="">
+                                        </div>
+                                    </div>
+                                    <h4>Llama Blanca de Anor</h4>
+                                    <p>Exclusivo del Concilio Blanco (Patreon)</p>
+                                    <button class="btn-buy-store" onclick="buyAvatarFrame('anor', 0)">Equipar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="store-section">
+                            <div class="section-title-small"><i class="fa-solid fa-signature"></i> Auras de Nombre</div>
+                            <div class="frames-grid">
+                                <div class="store-item frame-item aura-item" id="item-aura-rohan" data-aura-id="rohan">
+                                    <div class="frame-preview-box aura-preview-box">
+                                        <span class="aura-preview-text name-aura-rohan">Tu Nombre</span>
+                                    </div>
+                                    <h4>Estandarte de Rohan</h4>
+                                    <p>Degradado dorado y verde de la Marca</p>
+                                    <button class="btn-buy-store" onclick="buyNameAura('rohan', 10)">
+                                        <i class="fa-solid fa-gem"></i> 10 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item aura-item" id="item-aura-ithilien" data-aura-id="ithilien">
+                                    <div class="frame-preview-box aura-preview-box">
+                                        <span class="aura-preview-text name-aura-ithilien">Tu Nombre</span>
+                                    </div>
+                                    <h4>Susurro de Ithilien</h4>
+                                    <p>Resplandor verde élfico suave</p>
+                                    <button class="btn-buy-store" onclick="buyNameAura('ithilien', 15)">
+                                        <i class="fa-solid fa-gem"></i> 15 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item aura-item" id="item-aura-erebor" data-aura-id="erebor">
+                                    <div class="frame-preview-box aura-preview-box">
+                                        <span class="aura-preview-text name-aura-erebor">Tu Nombre</span>
+                                    </div>
+                                    <h4>Oro de Erebor</h4>
+                                    <p>Brillo dorado pulsante de tesoro enano</p>
+                                    <button class="btn-buy-store" onclick="buyNameAura('erebor', 20)">
+                                        <i class="fa-solid fa-gem"></i> 20 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item aura-item" id="item-aura-nazgul" data-aura-id="nazgul">
+                                    <div class="frame-preview-box aura-preview-box">
+                                        <span class="aura-preview-text name-aura-nazgul">Tu Nombre</span>
+                                    </div>
+                                    <h4>Sombra Nazgûl</h4>
+                                    <p>Resplandor púrpura siniestro</p>
+                                    <button class="btn-buy-store" onclick="buyNameAura('nazgul', 25)">
+                                        <i class="fa-solid fa-gem"></i> 25 Runas
+                                    </button>
+                                </div>
+
+                                <div class="store-item frame-item aura-item" id="item-aura-valinor" data-aura-id="valinor">
+                                    <div class="frame-preview-box aura-preview-box">
+                                        <span class="aura-preview-text name-aura-valinor">Tu Nombre</span>
+                                    </div>
+                                    <h4>Luz de Valinor</h4>
+                                    <p>Brillo dorado en movimiento, el más codiciado</p>
+                                    <button class="btn-buy-store" onclick="buyNameAura('valinor', 35)">
+                                        <i class="fa-solid fa-gem"></i> 35 Runas
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Patreon: suscripción VIP mensual -->
+                        <div class="store-section">
+                            <div class="section-title-small"><i class="fa-brands fa-patreon"></i> Suscripción Patreon</div>
+                            <div class="patreon-tiers-grid" id="patreon-tiers-grid">
+                                <div class="patreon-tier-card" data-tier="1">
+                                    <div class="ptier-name">El Poney Pisador</div>
+                                    <div class="ptier-price">$1 / mes</div>
+                                    <ul class="ptier-perks">
+                                        <li>Rol de Patron en Discord</li>
+                                        <li>Voto en encuestas exclusivas</li>
+                                    </ul>
+                                </div>
+                                <div class="patreon-tier-card ptier-vip" data-tier="2">
+                                    <div class="ptier-badge">VIP</div>
+                                    <div class="ptier-name">Juramento del Montaraz</div>
+                                    <div class="ptier-price">$3 / mes</div>
+                                    <ul class="ptier-perks">
+                                        <li><i class="fa-solid fa-ban"></i> Sin anuncios</li>
+                                        <li><i class="fa-solid fa-download"></i> Lectura offline</li>
+                                        <li><i class="fa-solid fa-crown"></i> Badge VIP en perfil</li>
+                                    </ul>
+                                </div>
+                                <div class="patreon-tier-card" data-tier="3">
+                                    <div class="ptier-name">Forja de Celebrimbor</div>
+                                    <div class="ptier-price">$5 / mes</div>
+                                    <ul class="ptier-perks">
+                                        <li>Todo lo del Montaraz</li>
+                                        <li><i class="fa-solid fa-gem"></i> 250 Runas / mes</li>
+                                    </ul>
+                                </div>
+                                <div class="patreon-tier-card ptier-premium" data-tier="4">
+                                    <div class="ptier-badge ptier-badge-gold">ELITE</div>
+                                    <div class="ptier-name">El Concilio Blanco</div>
+                                    <div class="ptier-price">$7 / mes</div>
+                                    <ul class="ptier-perks">
+                                        <li>Todo lo anterior</li>
+                                        <li><i class="fa-solid fa-gem"></i> 700 Runas / mes</li>
+                                        <li><i class="fa-solid fa-image"></i> Marco exclusivo de Patreon</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="patreon-connect-area" style="margin-top:14px;text-align:center">
+                                <div id="patreon-connected-info" style="display:none" class="patreon-connected-box">
+                                    <i class="fa-brands fa-patreon"></i>
+                                    <span id="patreon-tier-label">Cuenta vinculada</span>
+                                    <button class="btn-small" onclick="connectPatreon()">Reconectar</button>
+                                </div>
+                                <button id="btn-connect-patreon" class="btn-patreon" onclick="connectPatreon()">
+                                    <i class="fa-brands fa-patreon"></i> Conectar mi Patreon
+                                </button>
+                                <p style="font-size:.78em;color:#64748b;margin-top:6px">
+                                    Necesitas una suscripción activa en Patreon para activar el VIP.<br>
+                                    El VIP también se gana gratis completando el álbum del gacha.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Packs de Runas vía Binance USDT -->
+                        <div class="store-section">
+                            <div class="section-title-small"><i class="fa-solid fa-gem"></i> Packs de Runas <span style="font-size:.8em;font-weight:400;color:#64748b">(Binance USDT)</span></div>
+                            <div class="shop-grid">
+                                <div class="shop-item" onclick="buyRunasPack('starter')">
+                                    <div class="shop-coins"><i class="fa-solid fa-gem"></i> 100 Runas</div>
+                                    <span class="shop-price">$0.99 USDT</span>
+                                </div>
+                                <div class="shop-item" onclick="buyRunasPack('popular')">
+                                    <div class="ptier-badge" style="position:absolute;top:6px;right:6px;font-size:.65em">POPULAR</div>
+                                    <div class="shop-coins"><i class="fa-solid fa-gem"></i> 350 Runas</div>
+                                    <span class="shop-price">$2.99 USDT</span>
+                                </div>
+                                <div class="shop-item" onclick="buyRunasPack('value')">
+                                    <div class="shop-coins"><i class="fa-solid fa-gem"></i> 800 Runas</div>
+                                    <span class="shop-price">$5.99 USDT</span>
+                                </div>
+                                <div class="shop-item" onclick="buyRunasPack('whale')">
+                                    <div class="ptier-badge ptier-badge-gold" style="position:absolute;top:6px;right:6px;font-size:.65em">MEJOR VALOR</div>
+                                    <div class="shop-coins"><i class="fa-solid fa-gem"></i> 1800 Runas</div>
+                                    <span class="shop-price">$9.99 USDT</span>
+                                </div>
+                            </div>
+                            <p style="font-size:.78em;color:#64748b;margin-top:8px;text-align:center">
+                                El staff verifica el pago y acredita las Runas manualmente (máx. 24h).
+                            </p>
+                        </div>
+
+                        <!-- Tip Jar — donación directa, sin ventaja de juego, solo insignias de perfil -->
+                        <div class="store-section">
+                            <div class="section-title-small"><i class="fa-solid fa-fire-flame-curved"></i> Apoya al Scan <span style="font-size:.8em;font-weight:400;color:#64748b">(Binance USDT)</span></div>
+                            <p style="font-size:.82em;color:#94a3b8;margin-bottom:12px">
+                                Donación directa — 100% va al scan. Sin ventaja en juego. Gana insignias de perfil únicas según tu total acumulado.
+                            </p>
+                            <!-- Preview de insignias -->
+                            <div class="tip-badges-preview">
+                                <div class="tip-badge-item">
+                                    <span class="tip-badge-icon">🗡️</span>
+                                    <div>
+                                        <div class="tip-badge-name">Trasgo de las Cavernas</div>
+                                        <div class="tip-badge-req">desde $1 USDT</div>
+                                    </div>
+                                </div>
+                                <div class="tip-badge-item">
+                                    <span class="tip-badge-icon">⚔️</span>
+                                    <div>
+                                        <div class="tip-badge-name">Capataz de Mordor</div>
+                                        <div class="tip-badge-req">desde $20 USDT</div>
+                                    </div>
+                                </div>
+                                <div class="tip-badge-item tip-badge-top">
+                                    <span class="tip-badge-icon">👁️</span>
+                                    <div>
+                                        <div class="tip-badge-name">Lugarteniente de Barad-dûr</div>
+                                        <div class="tip-badge-req">desde $50 USDT</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="shop-grid">
+                                <div class="shop-item" onclick="buyTip('sm')">
+                                    <div class="shop-coins"><i class="fa-solid fa-heart"></i> Apoyo Pequeño</div>
+                                    <span class="shop-price">$2 USDT</span>
+                                </div>
+                                <div class="shop-item" onclick="buyTip('md')">
+                                    <div class="shop-coins"><i class="fa-solid fa-heart"></i> Apoyo Mediano</div>
+                                    <span class="shop-price">$5 USDT</span>
+                                </div>
+                                <div class="shop-item" onclick="buyTip('lg')">
+                                    <div class="shop-coins"><i class="fa-solid fa-fire"></i> Gran Apoyo</div>
+                                    <span class="shop-price">$20 USDT</span>
+                                    <p class="shop-item-desc">Desbloquea insignia Capataz</p>
+                                </div>
+                                <div class="shop-item tip-item-top" onclick="buyTip('xl')">
+                                    <div class="ptier-badge ptier-badge-gold" style="position:absolute;top:6px;right:6px;font-size:.65em">ÉLITE</div>
+                                    <div class="shop-coins"><i class="fa-solid fa-eye"></i> Lugarteniente</div>
+                                    <span class="shop-price">$50 USDT</span>
+                                    <p class="shop-item-desc">Insignia Lugarteniente de Barad-dûr</p>
+                                </div>
+                            </div>
+                            <p style="font-size:.78em;color:#64748b;margin-top:8px;text-align:center">
+                                El staff verifica el pago y acredita la insignia manualmente (máx. 24h).
+                            </p>
+                        </div>
+
+                        <div class="store-section">
+                            <div class="section-title-small"><i class="fa-solid fa-leaf"></i> Pases con Runas</div>
+                            <div class="shop-grid">
+                                <div class="shop-item" id="item-lembas" onclick="buyLembasPass()">
+                                    <div class="shop-coins"><i class="fa-solid fa-bread-slice"></i> Ración de Lembas</div>
+                                    <span class="shop-price"><i class="fa-solid fa-gem"></i> 25 Runas</span>
+                                    <p class="shop-item-desc">24 horas sin anuncios (no incluye descarga offline).</p>
+                                </div>
+                                <div class="shop-item" id="item-pergaminos" onclick="buyPergaminos()">
+                                    <div class="shop-coins"><i class="fa-solid fa-scroll"></i> Pergaminos de Minas Tirith</div>
+                                    <span class="shop-price"><i class="fa-solid fa-gem"></i> 20 Runas</span>
+                                    <p class="shop-item-desc">+5 cupos extra para descargar capítulos y leerlos sin internet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: MISSIONS / EVENTS -->
+                    <section id="screen-missions" class="app-screen">
+                        <div class="screen-header-title">
+                            <h2>Cámara de Runas</h2>
+                            <p>Completa misiones y obtén runas gratis para el lector</p>
+                        </div>
+
+                        <div class="events-section">
+                            <div class="event-card" id="checkin-card">
+                                <div class="event-info">
+                                    <h4>Check-in Diario</h4>
+                                    <p>Registra tu asistencia diaria en el Scan.</p>
+                                </div>
+                                <button class="btn-action-coin" onclick="claimDailyCheckin()">
+                                    +5 <i class="fa-solid fa-gem"></i>
+                                </button>
+                            </div>
+
+                            <div class="event-card" id="ad-card">
+                                <div class="event-info">
+                                    <h4>Visualizar Maná del Refuerzo</h4>
+                                    <p>Mira un video corto para recargar 10 Runas.</p>
+                                </div>
+                                <button class="btn-action-coin" onclick="watchMockAd()">
+                                    +10 <i class="fa-solid fa-gem"></i>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="store-section" id="missions-guest-notice" style="display:none;">
+                            <p class="empty-grid-msg">Inicia sesión para ver y reclamar misiones.</p>
+                        </div>
+
+                        <div class="store-section" id="missions-daily-section" style="display:none;">
+                            <div class="section-title-small"><i class="fa-solid fa-calendar-day"></i> Misiones Diarias</div>
+                            <div id="missions-daily-list" class="missions-list"></div>
+                        </div>
+
+                        <div class="store-section" id="missions-weekly-section" style="display:none;">
+                            <div class="section-title-small"><i class="fa-solid fa-calendar-week"></i> Misiones Semanales</div>
+                            <div id="missions-weekly-list" class="missions-list"></div>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: PROFILE / SETTINGS -->
+                    <section id="screen-profile" class="app-screen">
+
+                        <!-- Vista invitado (sin sesión) -->
+                        <div class="profile-header" id="profile-guest-view">
+                            <div class="profile-big-avatar">
+                                <img src="images/media_chibi.jpg" alt="Invitado">
+                            </div>
+                            <h3>Invitado</h3>
+                            <span class="user-tier">Inicia sesión para guardar tu progreso</span>
+                            <button class="btn-login-cta" onclick="switchScreen('login')">
+                                <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
+                            </button>
+                        </div>
+
+                        <!-- Vista con sesión iniciada -->
+                        <div class="profile-header" id="profile-logged-view" style="display:none;">
+                            <div class="profile-banner-strip" id="profile-banner-strip">
+                                <input type="file" id="profile-banner-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadProfileBanner(this)">
+                                <input type="file" id="avatar-upload-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadAvatar(this)">
+                            </div>
+                            <div class="profile-header-body">
+                                <div class="avatar-frame-wrap avatar-frame-wrap-big profile-avatar-overlap">
+                                    <div class="profile-big-avatar" id="profile-avatar-container">
+                                        <img src="images/media_chibi.jpg" alt="Profile" id="profile-avatar-big">
+                                    </div>
+                                    <img class="avatar-frame-overlay avatar-frame-overlay-big" id="profile-avatar-frame" src="" alt="" style="display:none;">
+                                </div>
+                                <h3 id="profile-username">—</h3>
+                                <span class="user-tier"><i class="fa-solid fa-wand-sparkles"></i> <span id="profile-role-badge">Lector</span></span>
+                                <span class="vip-badge" id="profile-vip-badge" style="display:none;"><i class="fa-solid fa-crown"></i> <span id="profile-vip-badge-text">Juramento del Montaraz activo</span></span>
+                                <span class="donation-badge" id="profile-donation-badge" style="display:none;"><span id="profile-donation-badge-icon"></span> <span id="profile-donation-badge-text"></span></span>
+                                <span class="streak-badge" id="profile-streak-badge" style="display:none;"><i class="fa-solid fa-fire"></i> <span id="profile-streak-badge-text"></span></span>
+
+                                <p class="profile-avatar-change-warning" id="profile-avatar-change-warning" style="display:none;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> El staff te pidió que cambies tu foto de perfil.
+                                </p>
+
+                                <p class="profile-bio-display" id="profile-bio-display"></p>
+
+                                <button class="profile-edit-toggle-btn" onclick="toggleProfileEditPanel()">
+                                    <i class="fa-solid fa-pen"></i> Editar perfil
+                                </button>
+
+                                <div class="profile-edit-panel" id="profile-edit-panel" style="display:none;">
+                                    <button class="btn-admin-submit" onclick="triggerAvatarUpload()"><i class="fa-solid fa-camera-retro"></i> Cambiar foto de perfil</button>
+                                    <button class="btn-admin-submit" onclick="triggerProfileBannerUpload()"><i class="fa-solid fa-image"></i> Cambiar banner</button>
+                                    <button class="btn-admin-submit btn-admin-ban" id="profile-edit-remove-banner-btn" onclick="removeProfileBanner()" style="display:none;"><i class="fa-solid fa-xmark"></i> Quitar banner</button>
+                                    <textarea id="profile-bio-input" placeholder="Cuéntanos algo sobre ti..." rows="2"></textarea>
+                                    <button class="btn-bio-save" onclick="saveProfileBioFromPanel()">Guardar cambios</button>
+                                </div>
+
+                                <button class="btn-logout-cta" onclick="logout()">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="profile-recent-section" id="profile-recent-section" style="display:none;">
+                            <div class="settings-group">Últimos leídos</div>
+                            <div id="profile-recent-list"></div>
+                        </div>
+
+                        <div class="profile-medals-section" id="profile-medals-section" style="display:none;">
+                            <div class="settings-group">Medallas del Gacha</div>
+                            <div id="profile-medals-list" class="profile-medals-grid"></div>
+                        </div>
+
+                        <div class="settings-list">
+                            <div class="settings-group">Filtros de Lectura</div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                    <div>
+                                        <h4>Filtro de Censura (NSFW)</h4>
+                                        <p>Ocultar portadas explícitas de adultos</p>
+                                    </div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="nsfw-filter-toggle" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item" onclick="changeUsername()">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-pen"></i>
+                                    <div>
+                                        <h4>Cambiar nombre de usuario</h4>
+                                        <p>30 Runas · una vez cada 30 días</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="setting-item" onclick="switchScreen('downloads'); renderDownloadsScreen();">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-download"></i>
+                                    <div>
+                                        <h4>Mis Descargas</h4>
+                                        <p>Capítulos guardados para leer sin internet</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="setting-item" onclick="unequipAvatarFrame()">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                    <div>
+                                        <h4>Remover Marco de Avatar</h4>
+                                        <p>Restaurar el avatar por defecto sin bordes</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="setting-item" onclick="unequipNameAura()">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                    <div>
+                                        <h4>Remover Aura de Nombre</h4>
+                                        <p>Quitar el efecto de color del nombre de usuario</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="setting-item" onclick="switchScreen('my-photos'); loadMyPhotos();">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-images"></i>
+                                    <div>
+                                        <h4>Mis Fotos</h4>
+                                        <p>Fotos que subiste a la Galería y su estado</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="setting-item" onclick="switchScreen('transactions'); loadTransactions();">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-receipt"></i>
+                                    <div>
+                                        <h4>Historial de Transacciones</h4>
+                                        <p>Qué compraste y cuántas Runas gastaste</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="settings-group">Cuenta y Seguridad</div>
+
+                            <div class="setting-item" onclick="openChangePassword()">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-key"></i>
+                                    <div>
+                                        <h4>Cambiar Contraseña</h4>
+                                        <p>Cierra sesión en tus otros dispositivos</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="setting-item" onclick="switchScreen('sessions'); loadSessions();">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-mobile-screen"></i>
+                                    <div>
+                                        <h4>Sesiones Activas</h4>
+                                        <p>Ver y cerrar sesión en otros dispositivos</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+
+                            <div class="setting-item setting-item-danger" onclick="openDeleteAccount()">
+                                <div class="setting-info">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    <div>
+                                        <h4>Eliminar Cuenta</h4>
+                                        <p>Acción permanente, no se puede deshacer</p>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: MIS FOTOS (fotos subidas a la Galería, con estado) -->
+                    <section id="screen-my-photos" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('profile')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+                        <div class="screen-header-title">
+                            <h2>Mis Fotos</h2>
+                            <p>Todo lo que subiste a la Galería, incluido lo pendiente/rechazado</p>
+                        </div>
+                        <div id="my-photos-list" class="my-photos-grid">
+                            <p class="empty-grid-msg">Cargando...</p>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: HISTORIAL DE TRANSACCIONES -->
+                    <section id="screen-transactions" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('profile')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+                        <div class="screen-header-title">
+                            <h2>Historial de Transacciones</h2>
+                            <p>Compras y créditos de Runas (no incluye check-in/anuncios/misiones)</p>
+                        </div>
+                        <div id="transactions-list">
+                            <p class="empty-grid-msg">Cargando...</p>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: SESIONES ACTIVAS -->
+                    <section id="screen-sessions" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('profile')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+                        <div class="screen-header-title">
+                            <h2>Sesiones Activas</h2>
+                            <p>Dispositivos con acceso a tu cuenta</p>
+                        </div>
+                        <button class="btn-admin-submit btn-admin-ban" style="margin-bottom:14px;" onclick="revokeAllOtherSessions()">Cerrar todas las demás sesiones</button>
+                        <div id="sessions-list">
+                            <p class="empty-grid-msg">Cargando...</p>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: CAMBIAR CONTRASEÑA -->
+                    <section id="screen-change-password" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('profile')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+                        <div class="screen-header-title">
+                            <h2>Cambiar Contraseña</h2>
+                            <p>Vas a cerrar sesión en tus otros dispositivos</p>
+                        </div>
+                        <div class="admin-upload-form">
+                            <input type="password" id="change-password-current" placeholder="Contraseña actual" class="admin-input">
+                            <input type="password" id="change-password-new" placeholder="Nueva contraseña (mínimo 6 caracteres)" class="admin-input">
+                            <button class="btn-admin-submit" onclick="submitChangePassword()">Cambiar Contraseña</button>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: ELIMINAR CUENTA -->
+                    <section id="screen-delete-account" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('profile')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+                        <div class="screen-header-title">
+                            <h2>Eliminar Cuenta</h2>
+                            <p>Esta acción es permanente y no se puede deshacer</p>
+                        </div>
+                        <p class="delete-account-warning">
+                            Tu nombre de usuario, email, avatar, banner y marcos equipados se van a borrar.
+                            Tus comentarios y fotos ya aprobadas de la Galería se quedan (sin tu nombre real),
+                            igual que tu historial en los rankings del Gacha. No vas a poder volver a entrar
+                            con esta cuenta.
+                        </p>
+                        <div class="admin-upload-form">
+                            <input type="password" id="delete-account-password" placeholder="Confirma tu contraseña" class="admin-input">
+                            <button class="btn-admin-submit btn-admin-ban" onclick="submitDeleteAccount()">Eliminar mi cuenta para siempre</button>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: MIS DESCARGAS (lectura offline, Pergaminos de Minas Tirith) -->
+                    <section id="screen-downloads" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('profile')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+                        <div class="screen-header-title">
+                            <h2>Mis Descargas</h2>
+                            <p id="downloads-slots-text">0 / 5 capítulos descargados</p>
+                        </div>
+                        <div id="downloads-list-container">
+                            <p class="empty-grid-msg">Todavía no descargaste ningún capítulo.</p>
+                        </div>
+                        <button class="btn-buy-store" id="downloads-buy-pergaminos-btn" onclick="buyPergaminos()" style="margin-top:14px;">
+                            <i class="fa-solid fa-scroll"></i> Conseguir +5 cupos (20 Runas)
+                        </button>
+                    </section>
+
+                    <!-- SCREEN: LOGIN -->
+                    <section id="screen-login" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('profile')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+
+                        <div class="login-box">
+                            <div class="login-logo">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <h2>Iniciar sesión</h2>
+                            <p class="login-sub">Usa la misma cuenta que ya tienes en orckumangas.com</p>
+
+                            <div id="login-error" class="login-error" style="display:none;"></div>
+
+                            <div class="form-group">
+                                <label>Usuario o correo</label>
+                                <input type="text" id="login-username" placeholder="Tu usuario o email">
+                            </div>
+                            <div class="form-group">
+                                <label>Contraseña</label>
+                                <input type="password" id="login-password" placeholder="••••••••">
+                            </div>
+
+                            <button class="btn-modal-submit btn-login-submit" id="login-submit-btn" onclick="handleLoginSubmit()">
+                                Iniciar sesión
+                            </button>
+
+                            <div class="forgot-password-link" onclick="switchScreen('forgot-password')">¿Olvidaste tu contraseña?</div>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: RECUPERAR CONTRASEÑA -->
+                    <section id="screen-forgot-password" class="app-screen">
+                        <div class="back-nav" onclick="switchScreen('login')">
+                            <i class="fa-solid fa-arrow-left"></i> Volver
+                        </div>
+
+                        <div class="login-box">
+                            <div class="login-logo">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <h2>Recuperar contraseña</h2>
+                            <p class="login-sub">Por ahora no hay envío automático de correos: pide el código aquí y el staff de OrckuApp te lo va a pasar por Discord.</p>
+
+                            <div id="forgot-step-request">
+                                <div id="forgot-request-msg" class="login-error" style="display:none;"></div>
+                                <div class="form-group">
+                                    <label>Usuario o correo</label>
+                                    <input type="text" id="forgot-identifier" placeholder="Tu usuario o email">
+                                </div>
+                                <button class="btn-modal-submit btn-login-submit" id="forgot-request-btn" onclick="handleForgotPasswordRequest()">
+                                    Solicitar código
+                                </button>
+                                <div class="forgot-password-link" onclick="showForgotResetStep()">Ya tengo un código del staff</div>
+                            </div>
+
+                            <div id="forgot-step-reset" style="display:none;">
+                                <div id="forgot-reset-msg" class="login-error" style="display:none;"></div>
+                                <div class="form-group">
+                                    <label>Usuario o correo</label>
+                                    <input type="text" id="forgot-reset-identifier" placeholder="Tu usuario o email">
+                                </div>
+                                <div class="form-group">
+                                    <label>Código que te pasó el staff</label>
+                                    <input type="text" id="forgot-reset-token" placeholder="Código">
+                                </div>
+                                <div class="form-group">
+                                    <label>Contraseña nueva</label>
+                                    <input type="password" id="forgot-reset-password" placeholder="Mínimo 6 caracteres">
+                                </div>
+                                <button class="btn-modal-submit btn-login-submit" id="forgot-reset-btn" onclick="handleForgotPasswordReset()">
+                                    Restablecer contraseña
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: MANHAWA DETAILS -->
+                    <section id="screen-manga-details" class="app-screen">
+                        <div class="back-nav" onclick="goBackToHome()">
+                            <i class="fa-solid fa-arrow-left"></i> Volver a la Biblioteca
+                        </div>
+                        <div class="manga-detail-header">
+                            <div class="manga-detail-cover" id="manga-detail-cover-wrap">
+                                <img src="" alt="Manga Cover" id="detail-cover-img">
+                                <div class="nsfw-overlay"><i class="fa-solid fa-eye-slash"></i> +18 Censurado</div>
+                            </div>
+                            <div class="manga-detail-meta">
+                                <h2 id="detail-title">Nombre</h2>
+                                <span class="tag-status" id="detail-status">En Emisión</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-meta-grid">
+                            <div><span class="meta-label">Autor</span> <span id="detail-autor">—</span></div>
+                            <div><span class="meta-label">Artista</span> <span id="detail-artista">—</span></div>
+                            <div><span class="meta-label">Año</span> <span id="detail-anio">—</span></div>
+                            <div><span class="meta-label">Tipo</span> <span id="detail-tipo">—</span></div>
+                        </div>
+
+                        <div class="detail-rating-row">
+                            <div class="detail-stars" id="detail-stars"></div>
+                            <span class="detail-views"><i class="fa-solid fa-eye"></i> <span id="detail-views-count">—</span></span>
+                            <button class="detail-share-btn" onclick="shareManga()" title="Compartir"><i class="fa-solid fa-share-nodes"></i></button>
+                        </div>
+
+                        <div class="list-status-row" id="list-status-row">
+                            <button class="list-status-chip" data-status="plan_to_read" onclick="setListStatus('plan_to_read', this)">Pendiente</button>
+                            <button class="list-status-chip" data-status="reading" onclick="setListStatus('reading', this)">Leyendo</button>
+                            <button class="list-status-chip" data-status="on_hold" onclick="setListStatus('on_hold', this)">En pausa</button>
+                            <button class="list-status-chip" data-status="completed" onclick="setListStatus('completed', this)">Completado</button>
+                            <button class="list-status-chip" data-status="dropped" onclick="setListStatus('dropped', this)">Abandonado</button>
+                        </div>
+
+                        <button class="btn-continue-reading" id="btn-continue-reading" style="display:none;">
+                            <i class="fa-solid fa-play"></i> <span></span>
+                        </button>
+
+                        <span class="detail-desc-label">Sinopsis</span>
+                        <p id="detail-desc">Un increíble manhwa disponible para leer de manera fluida y nativa.</p>
+
+                        <div class="detail-gallery-link" id="detail-gallery-link" onclick="viewMangaGallery()">
+                            <i class="fa-solid fa-images"></i> Ver galería de fotos de esta obra
+                        </div>
+
+                        <div class="chapters-list">
+                            <div class="chapters-list-header">
+                                <h3>Capítulos</h3>
+                                <button class="btn-order-toggle" id="btn-order-toggle" onclick="toggleChapterOrder()">
+                                    <i class="fa-solid fa-arrow-down-short-wide"></i> Recientes primero
+                                </button>
+                            </div>
+
+                            <div id="chapters-container"></div>
+                        </div>
+
+                        <div class="comments-section">
+                            <div class="chapters-list-header">
+                                <h3>Comentarios</h3>
+                            </div>
+
+                            <div class="comment-form" id="comment-form">
+                                <textarea id="comment-input" placeholder="Escribe un comentario..." rows="2" onpaste="handleCommentPaste(event, 'main', 'comment-attach-preview-main')"></textarea>
+                                <div class="comment-attach-preview" id="comment-attach-preview-main"></div>
+                                <div class="comment-form-actions">
+                                    <label class="comment-attach-btn" for="comment-attach-input-main" title="Adjuntar imagen o video">
+                                        <i class="fa-solid fa-paperclip"></i>
+                                    </label>
+                                    <input type="file" id="comment-attach-input-main" accept="image/*,video/*" style="display:none;" onchange="onAttachmentSelected(event, 'main', 'comment-attach-preview-main')">
+                                    <button class="btn-comment-submit" onclick="submitComment(null, 'manga')">Comentar</button>
+                                </div>
+                            </div>
+                            <div class="comment-login-cta" id="comment-login-cta" style="display:none;" onclick="switchScreen('login')">
+                                Inicia sesión para comentar
+                            </div>
+
+                            <div id="comments-container">
+                                <p class="empty-grid-msg">Aún no hay comentarios. ¡Sé el primero!</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: READER SCREEN -->
+                    <section id="screen-reader" class="app-screen">
+                        <div class="reader-top-bar">
+                            <div class="reader-back" onclick="closeReader()">
+                                <i class="fa-solid fa-chevron-left"></i>
+                                <span id="reader-title">Sweet Secrets - Capítulo 1</span>
+                            </div>
+                            <div class="reader-top-bar-actions">
+                                <div class="reader-settings" id="reader-download-btn" onclick="toggleChapterDownload()" title="Descargar capítulo para leer offline">
+                                    <i class="fa-solid fa-download" id="reader-download-icon"></i>
+                                </div>
+                                <div class="reader-settings" onclick="shareChapter()" title="Compartir capítulo">
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                </div>
+                                <div class="reader-settings" onclick="reportContent('chapter', readerState.chapterId)" title="Reportar capítulo roto">
+                                    <i class="fa-solid fa-flag"></i>
+                                </div>
+                                <div class="reader-settings" onclick="toggleReaderMode()" title="Cambiar modo de lectura">
+                                    <i class="fa-solid fa-images" id="reader-mode-icon"></i>
+                                </div>
+                                <div class="reader-settings" onclick="toggleReaderOptionsPanel()" title="Ajustes de lectura">
+                                    <i class="fa-solid fa-sliders"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="range" class="reader-progress-bar" id="reader-progress-bar" min="0" max="1000" value="0">
+
+                        <div class="reader-pages" id="reader-pages-container">
+                            <div id="reader-images-wrap">
+                                <!-- Manga images will be loaded here dynamically -->
+                            </div>
+
+                            <div class="comments-section reader-comments-section">
+                                <div class="chapters-list-header">
+                                    <h3>Comentarios del capítulo</h3>
+                                </div>
+
+                                <div class="comment-form" id="reader-comment-form">
+                                    <textarea id="reader-comment-input" placeholder="Escribe un comentario..." rows="2" onpaste="handleCommentPaste(event, 'chapter-main', 'reader-comment-attach-preview-main')"></textarea>
+                                    <div class="comment-attach-preview" id="reader-comment-attach-preview-main"></div>
+                                    <div class="comment-form-actions">
+                                        <label class="comment-attach-btn" for="reader-comment-attach-input-main" title="Adjuntar imagen o video">
+                                            <i class="fa-solid fa-paperclip"></i>
+                                        </label>
+                                        <input type="file" id="reader-comment-attach-input-main" accept="image/*,video/*" style="display:none;" onchange="onAttachmentSelected(event, 'chapter-main', 'reader-comment-attach-preview-main')">
+                                        <button class="btn-comment-submit" onclick="submitComment(null, 'chapter')">Comentar</button>
+                                    </div>
+                                </div>
+                                <div class="comment-login-cta" id="reader-comment-login-cta" style="display:none;" onclick="switchScreen('login')">
+                                    Inicia sesión para comentar
+                                </div>
+
+                                <div id="reader-comments-container">
+                                    <p class="empty-grid-msg">Aún no hay comentarios. ¡Sé el primero!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reader-bottom-nav">
+                            <span id="reader-nav-prev" onclick="readerGoPrev()">Anterior</span>
+                            <span class="reader-page-indicator" id="reader-page-indicator">Capítulo Completo</span>
+                            <span id="reader-nav-next" onclick="readerGoNext()">Siguiente</span>
+                        </div>
+
+                        <div class="reader-brightness-overlay" id="reader-brightness-overlay"></div>
+
+                        <button class="reader-autoscroll-btn" id="reader-autoscroll-btn" style="display:none;" onclick="toggleAutoScrollPlayback()" title="Pausar/reanudar auto-scroll">
+                            <i class="fa-solid fa-pause" id="reader-autoscroll-icon"></i>
+                        </button>
+
+                        <div class="reader-options-overlay" id="reader-options-overlay" onclick="closeReaderOptionsPanel()"></div>
+                        <div class="reader-options-panel" id="reader-options-panel">
+                            <div class="reader-options-header">
+                                <h3>Ajustes de lectura</h3>
+                                <i class="fa-solid fa-xmark" onclick="closeReaderOptionsPanel()"></i>
+                            </div>
+
+                            <div class="reader-option-row">
+                                <div class="reader-option-label">
+                                    <i class="fa-solid fa-sun"></i> Brillo
+                                </div>
+                                <input type="range" id="reader-opt-brightness" min="20" max="100" value="100">
+                            </div>
+
+                            <div class="reader-option-row">
+                                <div class="reader-option-label">
+                                    <i class="fa-solid fa-moon"></i> Filtro nocturno
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="reader-opt-night" onchange="toggleNightFilter()">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+
+                            <div class="reader-option-row">
+                                <div class="reader-option-label">
+                                    <i class="fa-solid fa-arrow-down-long"></i> Auto-scroll
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="reader-opt-autoscroll" onchange="toggleAutoScrollSetting()">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+
+                            <div class="reader-option-row" id="reader-autoscroll-speed-row" style="display:none;">
+                                <div class="reader-option-label">
+                                    <i class="fa-solid fa-gauge"></i> Velocidad
+                                </div>
+                                <input type="range" id="reader-opt-autoscroll-speed" min="1" max="10" value="4">
+                            </div>
+
+                            <div class="reader-option-row">
+                                <div class="reader-option-label">
+                                    <i class="fa-solid fa-mobile-screen"></i> Mantener pantalla encendida
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="reader-opt-wakelock" checked onchange="toggleWakeLockSetting()">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+
+                            <p class="reader-options-hint">Toca la mitad superior o inferior de una página para desplazarte. Doble toque para hacer zoom.</p>
+                        </div>
+                    </section>
+
+                    <!-- SCREEN: ADMIN PANEL -->
+                    <section id="screen-admin" class="app-screen">
+                        <div class="screen-header-title">
+                            <h2>Panel del Staff</h2>
+                            <p>Control de la Galería y Capítulos Exclusivos</p>
+                        </div>
+
+                        <div class="admin-module">
+                            <h3>Versión mínima de la app</h3>
+                            <p class="admin-bulk-hint">Si alguien abre la app con un versionCode menor al que pongas acá, ve una pantalla bloqueante que lo obliga a descargar la actualización antes de poder usarla. Súbelo recién cuando el APK nuevo ya esté publicado en la descarga directa.</p>
+                            <div class="admin-upload-form">
+                                <input type="number" id="app-version-min-code" placeholder="versionCode mínimo (ej. 2)" class="admin-input">
+                                <input type="text" id="app-version-message" placeholder="Mensaje personalizado (opcional)" class="admin-input">
+                                <button class="btn-admin-submit" onclick="adminSetAppVersion()">Guardar</button>
+                            </div>
+                        </div>
+
+                        <div class="admin-module">
+                            <h3>Subir Capítulo</h3>
+                            <div class="admin-upload-form">
+                                <input type="text" id="chapter-upload-manga-search" placeholder="Buscar obra..." class="admin-input" autocomplete="off" oninput="searchMangaForChapterUpload(this.value)">
+                                <input type="hidden" id="chapter-upload-manga-id">
+                                <div class="search-dropdown" id="chapter-upload-manga-results"></div>
+                                <input type="number" id="chapter-upload-number" placeholder="Número de capítulo (ej. 12 o 12.5)" class="admin-input" step="0.1">
+                                <input type="text" id="chapter-upload-title" placeholder="Título (opcional)" class="admin-input">
+                                <input type="file" id="chapter-upload-files" accept="image/*" multiple>
+                                <button class="btn-admin-submit" id="chapter-upload-submit-btn" onclick="startChapterUpload()">Subir capítulo</button>
+                            </div>
+                            <p class="admin-bulk-hint" id="chapter-upload-progress"></p>
+                        </div>
+
+                        <div class="admin-module">
+                            <h3>Aprobar Fotos de la Galería (UGC)</h3>
+                            <div class="admin-approval-list" id="admin-approval-container">
+                                <!-- Dynamic approval items -->
+                            </div>
+                        </div>
+
+                        <div class="admin-module">
+                            <h3>Usuarios (suspensiones)</h3>
+                            <div class="admin-upload-form">
+                                <input type="text" id="admin-user-search-input" placeholder="Buscar por nombre de usuario o email..." class="admin-input" oninput="debounceAdminUserSearch()">
+                            </div>
+                            <div class="admin-user-search-results" id="admin-user-search-results"></div>
+                        </div>
+
+                        <div class="admin-module">
+                            <h3>Reportes de Contenido <span class="admin-reports-count" id="admin-reports-count"></span></h3>
+                            <div class="admin-reports-tabs">
+                                <button class="admin-reports-tab active" id="admin-reports-tab-pending" onclick="loadAdminReports('pending')">Pendientes</button>
+                                <button class="admin-reports-tab" id="admin-reports-tab-resolved" onclick="loadAdminReports('resolved')">Resueltos</button>
+                            </div>
+                            <div class="admin-reports-list" id="admin-reports-list">
+                                <p class="empty-grid-msg">Cargando...</p>
+                            </div>
+                        </div>
+
+                        <div class="admin-module">
+                            <h3>Gestión del Gacha de Galería</h3>
+
+                            <h4 class="admin-submodule-title">Estado del Gacha</h4>
+                            <p class="admin-bulk-hint">Controla si el Gacha se muestra normal o si aparece un aviso en su lugar (para pulir balance, preparar una temporada nueva, etc.) sin tocar código.</p>
+                            <div class="admin-upload-form">
+                                <select id="gacha-admin-status" class="admin-input">
+                                    <option value="active">Activo (funcionamiento normal)</option>
+                                    <option value="coming_soon">Próximamente</option>
+                                    <option value="maintenance">En mantenimiento / puliendo</option>
+                                    <option value="paused">Pausado</option>
+                                </select>
+                                <input type="text" id="gacha-admin-status-message" placeholder="Mensaje personalizado (opcional)" class="admin-input">
+                                <button class="btn-admin-submit" onclick="adminSetGachaStatus()">Guardar estado</button>
+                            </div>
+
+                            <div class="admin-gacha-current" id="admin-gacha-current">
+                                <p class="empty-grid-msg">Cargando temporada activa...</p>
+                            </div>
+
+                            <h4 class="admin-submodule-title">Crear nueva temporada (reemplaza la activa)</h4>
+                            <div class="admin-upload-form">
+                                <input type="text" id="gacha-admin-name" placeholder="Nombre (ej: Temporada de Verano)" class="admin-input">
+                                <input type="date" id="gacha-admin-start" class="admin-input">
+                                <input type="date" id="gacha-admin-end" class="admin-input">
+                                <input type="number" id="gacha-admin-cost" placeholder="Costo por tirada en Runas" class="admin-input" value="10">
+                                <input type="text" id="gacha-admin-reward1" placeholder="Premio 1er lugar (ej: 1 mes de Discord Nitro)" class="admin-input">
+                                <input type="text" id="gacha-admin-reward2" placeholder="Premio 2do lugar" class="admin-input">
+                                <input type="text" id="gacha-admin-reward3" placeholder="Premio 3er lugar" class="admin-input">
+                                <button class="btn-admin-submit" onclick="adminCreateGachaSeason()">Crear temporada</button>
+                            </div>
+
+                            <h4 class="admin-submodule-title">Subir cartas (selecciona todas de golpe)</h4>
+                            <p class="admin-bulk-hint">Elige las imágenes juntas. Se suben todas con nombre genérico — el nombre, la rareza y el manga de cada una se ponen después, abajo, con calma.</p>
+                            <p class="admin-bulk-warning"><i class="fas fa-triangle-exclamation"></i> El servidor solo acepta hasta 20 imágenes por tanda. Si eliges más de 20, las que sobran se pierden sin aviso — sube primero 20, y el resto en una segunda tanda.</p>
+                            <div class="admin-upload-form">
+                                <input type="file" id="gacha-admin-bulk-files" accept="image/*" multiple class="admin-input">
+                                <button class="btn-admin-submit" id="gacha-admin-bulk-submit-btn" onclick="adminBulkUploadGachaCards()">Subir todas</button>
+                            </div>
+                            <div class="admin-gacha-cards-list" id="admin-gacha-cards-list"></div>
+
+                            <h4 class="admin-submodule-title">Ganadores (temporada activa)</h4>
+                            <div class="admin-gacha-completions-list" id="admin-gacha-completions-list">
+                                <p class="empty-grid-msg">Nadie ha completado el álbum todavía.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                </main>
+
+                <!-- App Bottom Navigation Bar -->
+                <nav class="app-navigation">
+                    <button class="nav-item active" onclick="switchScreen('home', this)">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Lector</span>
+                    </button>
+                    <button class="nav-item" onclick="switchScreen('gallery', this)">
+                        <i class="fa-solid fa-image"></i>
+                        <span>Galería</span>
+                    </button>
+                    <button class="nav-item" onclick="switchScreen('store', this)">
+                        <i class="fa-solid fa-store"></i>
+                        <span>Tienda</span>
+                    </button>
+                    <button class="nav-item" onclick="switchScreen('missions', this)">
+                        <i class="fa-solid fa-gem"></i>
+                        <span>Misiones</span>
+                    </button>
+                    <button class="nav-item" onclick="switchScreen('profile', this)">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Perfil</span>
+                    </button>
+                </nav>
+
+            </div>
+            
+            <!-- Android Camera Notch / speaker -->
+            <div class="notch"></div>
+            <!-- Android Bottom Navigation Pill -->
+            <div class="android-home-pill"></div>
+        </div>
+
+    </div>
+
+    <!-- FORCE UPDATE MODAL: bloqueante a proposito, sin boton de cerrar - ver checkAppVersion() en app.js -->
+    <div id="force-update-modal" class="modal-overlay">
+        <div class="ad-content-box force-update-box">
+            <i class="fa-solid fa-rocket force-update-icon"></i>
+            <h3>Actualización disponible</h3>
+            <p id="force-update-message">Hay una nueva versión de la app. Actualiza para seguir usando OrckuApp.</p>
+            <a class="btn-continue-reading force-update-download-btn" href="https://orckumangas.com/downloads/OrckuApp.apk" target="_blank">
+                <i class="fa-solid fa-download"></i> Descargar actualización
+            </a>
+        </div>
+    </div>
+
+    <!-- MOCK AD MODAL -->
+    <div id="mock-ad-modal" class="modal-overlay">
+        <div class="ad-content-box">
+            <div class="ad-header">
+                <span>Refuerzo de Runas</span>
+                <span class="ad-timer" id="ad-timer-text">Cargando...</span>
+            </div>
+            <div class="ad-body">
+                <i class="fa-solid fa-wand-magic-sparkles animate-pulse" id="ad-mock-icon"></i>
+                <h3 id="ad-mock-title">Anuncio Recompensado Simulado</h3>
+                <p id="ad-mock-text">Tu visualización apoya de forma directa a la mantención del Scan.</p>
+                <div class="progress-bar" id="ad-mock-progress-wrap">
+                    <div class="progress-fill" id="ad-progress-fill"></div>
+                </div>
+                <video id="exoclick-rewarded-video" class="exoclick-rewarded-video" style="display:none;" playsinline></video>
+            </div>
+        </div>
+    </div>
+
+    <!-- ExoClick: registro de la zona de intersticial (no se ve nada acá - el disparo real
+         pasa por hacer clic en el link con la clase configurada en el panel de ExoClick,
+         "Metodo de Trigger: clic en enlaces con clase especifica") -->
+    <ins class="eas6a97888e35" data-zoneid="5965642" style="display:none;"></ins>
+    <a href="#" id="exoclick-interstitial-trigger" class="exoclick-interstitial-trigger" style="display:none;" onclick="return false;"></a>
+
+    <!-- MOCK INTERSTITIAL MODAL: reemplaza a Zone ID real de ExoClick cuando exista (ver EXOCLICK_ZONE_INTERSTITIAL en app.js) -->
+    <div id="mock-interstitial-modal" class="modal-overlay">
+        <div class="ad-content-box">
+            <div class="ad-header">
+                <span>Publicidad</span>
+            </div>
+            <div class="ad-body">
+                <i class="fa-solid fa-scroll animate-pulse"></i>
+                <h3>Anuncio Simulado</h3>
+                <p>Esto ayuda a cubrir el costo de las raws del Scan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOCK UPLOAD GALLERY MODAL -->
+    <div id="upload-waifu-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Subir a la Galería de la Comunidad</h3>
+            <div class="gallery-rules-box">
+                <p class="gallery-rules-title"><i class="fa-solid fa-circle-info"></i> Reglas para que tu foto sea aprobada</p>
+                <ul>
+                    <li>Indica obligatoriamente de qué <strong>manga/proyecto</strong> es.</li>
+                    <li>Si es contenido <strong>+18</strong>, márcalo. Si subes una foto +18 sin marcarla, será rechazada.</li>
+                    <li>Las fotos de fans pasan por la revisión del staff antes de hacerse públicas.</li>
+                </ul>
+            </div>
+            <div class="form-group">
+                <label>Título</label>
+                <input type="text" id="gallery-upload-title" placeholder="Ej: Fanart de la protagonista">
+            </div>
+            <div class="form-group" style="position:relative;">
+                <label>Manga / Proyecto <span class="required-mark">*</span></label>
+                <input type="text" id="gallery-upload-manga-search" placeholder="Buscar manga..." autocomplete="off" oninput="searchMangaForUpload(this.value)">
+                <div class="search-dropdown" id="gallery-upload-manga-results"></div>
+            </div>
+            <div class="form-group">
+                <label>¿Es contenido +18? <span class="required-mark">*</span></label>
+                <div class="gallery-nsfw-choice">
+                    <button type="button" class="gallery-nsfw-opt" id="gallery-nsfw-no" onclick="setUploadNsfw(0)">No, apto para todos</button>
+                    <button type="button" class="gallery-nsfw-opt" id="gallery-nsfw-yes" onclick="setUploadNsfw(1)">Sí, es +18</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Imagen</label>
+                <input type="file" id="gallery-upload-file" accept="image/*">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-modal-cancel" onclick="closeUploadModal()">Cancelar</button>
+                <button class="btn-modal-submit" id="gallery-upload-submit-btn" onclick="submitGalleryPhoto()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visor de foto a pantalla completa (lightbox) de la galeria -->
+    <div class="gallery-viewer-overlay" id="gallery-viewer-overlay" onclick="closeGalleryViewer()">
+        <div class="gallery-viewer-inner" onclick="event.stopPropagation()">
+            <button class="gallery-viewer-close" onclick="closeGalleryViewer()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="gallery-viewer-img-wrap">
+                <img id="gallery-viewer-img" src="" alt="Foto">
+                <div class="gallery-viewer-nsfw" id="gallery-viewer-nsfw" style="display:none;" onclick="revealGalleryViewerNsfw(event)">
+                    <i class="fa-solid fa-eye-slash"></i> +18 — toca para ver
+                </div>
+            </div>
+            <div class="gallery-viewer-meta">
+                <h3 id="gallery-viewer-title"></h3>
+                <p id="gallery-viewer-sub"></p>
+                <div class="gallery-viewer-actions">
+                    <button class="btn-like" id="gallery-viewer-like" onclick="toggleGalleryLike(galleryViewerCurrentId)">
+                        <i class="fa-regular fa-heart"></i> <span class="like-count" id="gallery-viewer-like-count">0</span>
+                    </button>
+                    <button class="btn-gallery-boost" id="gallery-viewer-boost" style="display:none;" onclick="boostGalleryPhoto(galleryViewerCurrentId)">
+                        <i class="fa-solid fa-rocket"></i> Destacar 24h
+                    </button>
+                    <button class="btn-gallery-unlock-hd" id="gallery-viewer-unlock-hd" style="display:none;" onclick="unlockGalleryPhotoHd(galleryViewerCurrentId)">
+                        <i class="fa-solid fa-gem"></i> Desbloquear HD
+                    </button>
+                    <button class="btn-gallery-delete" id="gallery-viewer-delete" style="display:none;" onclick="deleteGalleryPhoto(galleryViewerCurrentId)">
+                        <i class="fa-solid fa-trash"></i> Borrar
+                    </button>
+                    <button class="btn-gallery-report" id="gallery-viewer-report" style="display:none;" onclick="reportContent('gallery_photo', galleryViewerCurrentId)">
+                        <i class="fa-solid fa-flag"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Embedded Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
