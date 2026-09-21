@@ -10,16 +10,10 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
-          npm install
-      - name: Fix binary permissions
+          npm ci
+      - name: Verify web assets
         script: |
-          chmod +x node_modules/.bin/*
-      - name: Build web assets
-        script: |
-          npm run build --if-present
-      - name: Add iOS platform
-        script: |
-          npx cap add ios
+          test -f www/index.html
       - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
